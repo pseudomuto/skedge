@@ -8,20 +8,21 @@ interface Props {
 }
 
 export function ScheduleGrid({ schedule, blocks }: Props) {
-  const [selectedClass, setSelectedClass] = useState(0)
+  const sorted = [...schedule].sort((a, b) => a.name.localeCompare(b.name))
+  const [selectedName, setSelectedName] = useState(sorted[0]?.name ?? '')
 
-  const cls = schedule[selectedClass]
+  const cls = sorted.find(c => c.name === selectedName) ?? sorted[0]
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap gap-2">
-        {schedule.map((c, i) => (
+        {sorted.map(c => (
           <button
             key={c.name}
-            onClick={() => setSelectedClass(i)}
+            onClick={() => setSelectedName(c.name)}
             className="rounded-full px-4 py-1.5 text-sm font-medium transition-all"
             style={
-              selectedClass === i
+              c.name === (cls?.name ?? '')
                 ? { backgroundColor: 'var(--brand)', color: '#ffffff', boxShadow: '0 1px 3px rgba(30,58,95,0.3)' }
                 : { backgroundColor: 'var(--surface)', color: 'var(--brand)', border: '1px solid var(--border)' }
             }
@@ -41,7 +42,7 @@ export function ScheduleGrid({ schedule, blocks }: Props) {
                     className="text-xs font-semibold uppercase tracking-widest"
                     style={{ color: 'var(--brand)' }}
                   >
-                    Cohort {cohort.name}
+                    {'Cohort ' + cohort.name}
                   </span>
                   <div className="h-px flex-1" style={{ backgroundColor: 'var(--border)' }} />
                 </div>

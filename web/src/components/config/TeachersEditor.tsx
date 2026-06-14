@@ -46,6 +46,8 @@ function TeacherPanel({ teacher, classes, onUpdate, onRemove }: TeacherPanelProp
     onUpdate({ ...teacher, subjects: nextSubjects })
   }
 
+  const sortedClasses = [...classes].sort((a, b) => a.name.localeCompare(b.name))
+
   return (
     <div className="rounded border border-gray-200 bg-white p-4">
       <div className="mb-3 flex items-center gap-3">
@@ -71,10 +73,10 @@ function TeacherPanel({ teacher, classes, onUpdate, onRemove }: TeacherPanelProp
         </button>
       </div>
 
-      {classes.length > 0 && (
+      {sortedClasses.length > 0 && (
         <div className="space-y-3">
-          {classes.map(cls => {
-            const classSubjects = cls.subjects.map(s => s.name)
+          {sortedClasses.map(cls => {
+            const classSubjects = cls.subjects.map(s => s.name).sort((a, b) => a.localeCompare(b))
             if (classSubjects.length === 0) return null
             return (
               <div key={cls.name}>
@@ -102,6 +104,13 @@ function TeacherPanel({ teacher, classes, onUpdate, onRemove }: TeacherPanelProp
 }
 
 export function TeachersEditor({ teachers, classes, onChange }: Props) {
+  const sorted = [...teachers].sort((a, b) => {
+    if (!a.name && !b.name) return 0
+    if (!a.name) return 1
+    if (!b.name) return -1
+    return a.name.localeCompare(b.name)
+  })
+
   const updateAt = (index: number, updated: Teacher) => {
     onChange(teachers.map((t, i) => (i === index ? updated : t)))
   }
@@ -118,15 +127,18 @@ export function TeachersEditor({ teachers, classes, onChange }: Props) {
     <div>
       <h2 className="mb-3 text-lg font-semibold text-gray-800">Teachers</h2>
       <div className="space-y-3">
-        {teachers.map((teacher, i) => (
-          <TeacherPanel
-            key={i}
-            teacher={teacher}
-            classes={classes}
-            onUpdate={updated => updateAt(i, updated)}
-            onRemove={() => remove(i)}
-          />
-        ))}
+        {sorted.map(teacher => {
+          const origIdx = teachers.indexOf(teacher)
+          return (
+            <TeacherPanel
+              key={origIdx}
+              teacher={teacher}
+              classes={classes}
+              onUpdate={updated => updateAt(origIdx, updated)}
+              onRemove={() => remove(origIdx)}
+            />
+          )
+        })}
       </div>
       <button
         onClick={add}

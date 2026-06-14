@@ -44,6 +44,8 @@ function ClassPanel({ cls, subjects, onUpdate, onRemove }: ClassPanelProps) {
     return cls.subjects.find(s => s.name === subjectName)?.blocks ?? 0
   }
 
+  const sortedSubjects = [...subjects].sort((a, b) => a.name.localeCompare(b.name))
+
   return (
     <div className="rounded border border-gray-200 bg-white p-4">
       <div className="mb-3 flex items-center gap-3">
@@ -74,11 +76,11 @@ function ClassPanel({ cls, subjects, onUpdate, onRemove }: ClassPanelProps) {
         />
       </div>
 
-      {subjects.length > 0 && (
+      {sortedSubjects.length > 0 && (
         <div>
           <p className="mb-2 text-xs font-medium text-gray-600">Subjects (blocks per week, 0 = excluded)</p>
           <div className="space-y-1">
-            {subjects.map(subject => (
+            {sortedSubjects.map(subject => (
               <div key={subject.name} className="flex items-center gap-2">
                 <span className="w-32 text-sm text-gray-700">{subject.name}</span>
                 <input
@@ -98,6 +100,13 @@ function ClassPanel({ cls, subjects, onUpdate, onRemove }: ClassPanelProps) {
 }
 
 export function ClassesEditor({ classes, subjects, onChange }: Props) {
+  const sorted = [...classes].sort((a, b) => {
+    if (!a.name && !b.name) return 0
+    if (!a.name) return 1
+    if (!b.name) return -1
+    return a.name.localeCompare(b.name)
+  })
+
   const updateAt = (index: number, updated: Class) => {
     onChange(classes.map((c, i) => (i === index ? updated : c)))
   }
@@ -114,15 +123,18 @@ export function ClassesEditor({ classes, subjects, onChange }: Props) {
     <div>
       <h2 className="mb-3 text-lg font-semibold text-gray-800">Classes</h2>
       <div className="space-y-3">
-        {classes.map((cls, i) => (
-          <ClassPanel
-            key={i}
-            cls={cls}
-            subjects={subjects}
-            onUpdate={updated => updateAt(i, updated)}
-            onRemove={() => remove(i)}
-          />
-        ))}
+        {sorted.map(cls => {
+          const origIdx = classes.indexOf(cls)
+          return (
+            <ClassPanel
+              key={origIdx}
+              cls={cls}
+              subjects={subjects}
+              onUpdate={updated => updateAt(origIdx, updated)}
+              onRemove={() => remove(origIdx)}
+            />
+          )
+        })}
       </div>
       <button
         onClick={add}

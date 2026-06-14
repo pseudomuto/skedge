@@ -25,8 +25,8 @@ export function useConfig(): UseConfigReturn {
   }, [])
 
   const updateConfig = useCallback(async (next: Config): Promise<void> => {
-    await saveConfig(next)
     setConfig(next)
+    await saveConfig(next)
   }, [])
 
   const validationErrors = useMemo(
