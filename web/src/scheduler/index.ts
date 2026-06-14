@@ -7,9 +7,7 @@ import { validate } from './validate'
 
 export { validate } from './validate'
 
-export type GenerateResult =
-  | { ok: true; value: ScheduleClass[] }
-  | { ok: false; error: string }
+export type GenerateResult = { ok: true; value: ScheduleClass[] } | { ok: false; error: string }
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
 const DEFAULT_MAX_RETRIES = 100
@@ -17,23 +15,27 @@ const DEFAULT_MAX_RETRIES = 100
 function makePrng(seed: number): () => number {
   let s = seed
   return () => {
-    s = (Math.imul(s ^ (s >>> 16), 0x45d9f3b) | 0)
-    s = (Math.imul(s ^ (s >>> 16), 0x45d9f3b) | 0)
+    s = Math.imul(s ^ (s >>> 16), 0x45d9f3b) | 0
+    s = Math.imul(s ^ (s >>> 16), 0x45d9f3b) | 0
     s ^= s >>> 16
     return (s >>> 0) / 0xffffffff
   }
 }
 
 function buildEmptySchedule(cfg: Config): ScheduleClass[] {
-  return cfg.classes.map(cls => ({
+  return cfg.classes.map((cls) => ({
     name: cls.name,
-    cohorts: cls.cohorts.map((cohortName): Cohort => ({
-      name: cohortName,
-      schedule: DAYS.map((day): DailySchedule => ({
-        day,
-        blocks: cfg.blocks.map((): Block => ({ name: '', teacher: '', room: '' })),
-      })),
-    })),
+    cohorts: cls.cohorts.map(
+      (cohortName): Cohort => ({
+        name: cohortName,
+        schedule: DAYS.map(
+          (day): DailySchedule => ({
+            day,
+            blocks: cfg.blocks.map((): Block => ({ name: '', teacher: '', room: '' })),
+          }),
+        ),
+      }),
+    ),
   }))
 }
 

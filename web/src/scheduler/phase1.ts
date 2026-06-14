@@ -63,7 +63,16 @@ function placeBacktrack(
   if (di === schedule.length) return true
   if (bi === schedule[di].blocks.length) {
     return placeBacktrack(
-      schedule, order, counts, di + 1, 0, new Set(), subjectToIdx, canTeach, slotSubjectCount, numBlocks,
+      schedule,
+      order,
+      counts,
+      di + 1,
+      0,
+      new Set(),
+      subjectToIdx,
+      canTeach,
+      slotSubjectCount,
+      numBlocks,
     )
   }
 
@@ -91,10 +100,27 @@ function placeBacktrack(
       if (remaining === 0) continue
       let maxPlacements = numDays - di - 1
       if (remainingToday > 0 && !usedToday.has(s)) maxPlacements++
-      if (maxPlacements < remaining) { fc = false; break }
+      if (maxPlacements < remaining) {
+        fc = false
+        break
+      }
     }
 
-    if (fc && placeBacktrack(schedule, order, counts, di, bi + 1, usedToday, subjectToIdx, canTeach, slotSubjectCount, numBlocks)) {
+    if (
+      fc &&
+      placeBacktrack(
+        schedule,
+        order,
+        counts,
+        di,
+        bi + 1,
+        usedToday,
+        subjectToIdx,
+        canTeach,
+        slotSubjectCount,
+        numBlocks,
+      )
+    ) {
       return true
     }
 
@@ -117,13 +143,29 @@ function placeSubjects(
   const seen = new Set<string>()
   const order: string[] = []
   for (const s of shuffled) {
-    if (!seen.has(s)) { order.push(s); seen.add(s) }
+    if (!seen.has(s)) {
+      order.push(s)
+      seen.add(s)
+    }
   }
 
   const counts = new Map<string, number>()
   for (const s of shuffled) counts.set(s, (counts.get(s) ?? 0) + 1)
 
-  if (!placeBacktrack(cohort.schedule, order, counts, 0, 0, new Set(), subjectToIdx, canTeach, slotSubjectCount, numBlocks)) {
+  if (
+    !placeBacktrack(
+      cohort.schedule,
+      order,
+      counts,
+      0,
+      0,
+      new Set(),
+      subjectToIdx,
+      canTeach,
+      slotSubjectCount,
+      numBlocks,
+    )
+  ) {
     return new Error('cannot place subjects without duplicates (config is infeasible)')
   }
   return null
@@ -142,18 +184,19 @@ export function phase1(cfg: Config, schedule: ScheduleClass[], rng: () => number
     const seen = new Set<string>()
     const subjectOrder: string[] = []
     for (const s of cfgClass.subjects) {
-      if (!seen.has(s.name)) { subjectOrder.push(s.name); seen.add(s.name) }
+      if (!seen.has(s.name)) {
+        subjectOrder.push(s.name)
+        seen.add(s.name)
+      }
     }
     const subjectToIdx = new Map<string, number>()
     for (let i = 0; i < subjectOrder.length; i++) subjectToIdx.set(subjectOrder[i], i)
 
     // Teachers for this class
-    const classTeachers = cfg.teachers.filter(t =>
-      t.subjects.some(ts => ts.class === cfgClass.name),
-    )
+    const classTeachers = cfg.teachers.filter((t) => t.subjects.some((ts) => ts.class === cfgClass.name))
 
     const numSubjects = subjectOrder.length
-    const canTeach: boolean[][] = classTeachers.map(t => {
+    const canTeach: boolean[][] = classTeachers.map((t) => {
       const row = new Array<boolean>(numSubjects).fill(false)
       for (const ts of t.subjects) {
         if (ts.class === cfgClass.name) {
@@ -166,9 +209,7 @@ export function phase1(cfg: Config, schedule: ScheduleClass[], rng: () => number
       return row
     })
 
-    const slotSubjectCount: number[][] = Array.from({ length: numSlots }, () =>
-      new Array<number>(numSubjects).fill(0),
-    )
+    const slotSubjectCount: number[][] = Array.from({ length: numSlots }, () => new Array<number>(numSubjects).fill(0))
 
     const required = buildRequiredBlocks(cfgClass.subjects)
 

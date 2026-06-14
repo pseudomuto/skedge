@@ -27,15 +27,9 @@ export function GenerateButton({ config, onScheduleGenerated }: Props) {
     scheduler.generate(config, 100)
   }
 
-  const buttonLabel = status === 'running'
-    ? 'Generating...'
-    : status === 'error'
-    ? 'Try again'
-    : 'Generate schedule'
+  const buttonLabel = status === 'running' ? 'Generating...' : status === 'error' ? 'Try again' : 'Generate schedule'
 
-  const pct = progress
-    ? Math.round((progress.attempt / progress.maxAttempts) * 100)
-    : 0
+  const pct = progress ? Math.round((progress.attempt / progress.maxAttempts) * 100) : 0
 
   const buttonDisabled = isDisabled || status === 'running'
 
@@ -48,12 +42,12 @@ export function GenerateButton({ config, onScheduleGenerated }: Props) {
         style={{
           backgroundColor: buttonDisabled ? 'var(--text-muted)' : 'var(--accent)',
         }}
-        onMouseEnter={e => {
+        onMouseEnter={(e) => {
           if (!buttonDisabled) {
             ;(e.currentTarget as HTMLElement).style.backgroundColor = '#a86a12'
           }
         }}
-        onMouseLeave={e => {
+        onMouseLeave={(e) => {
           if (!buttonDisabled) {
             ;(e.currentTarget as HTMLElement).style.backgroundColor = 'var(--accent)'
           }
@@ -79,7 +73,9 @@ export function GenerateButton({ config, onScheduleGenerated }: Props) {
       )}
 
       {status === 'error' && error && (
-        <p className="text-sm" style={{ color: '#b91c1c' }}>{error}</p>
+        <p className="text-sm" style={{ color: '#b91c1c' }}>
+          {error}
+        </p>
       )}
     </div>
   )

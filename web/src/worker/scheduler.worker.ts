@@ -14,7 +14,11 @@ self.onmessage = (event: MessageEvent<WorkerRequest>) => {
   if (type !== 'GENERATE') return
 
   const result = generate(config, maxRetries, (attempt) => {
-    self.postMessage({ type: 'PROGRESS', attempt, maxAttempts: maxRetries } satisfies WorkerResponse)
+    self.postMessage({
+      type: 'PROGRESS',
+      attempt,
+      maxAttempts: maxRetries,
+    } satisfies WorkerResponse)
   })
 
   if (result.ok) {

@@ -19,8 +19,8 @@ export function useConfig(): UseConfigReturn {
 
   useEffect(() => {
     getConfig()
-      .then(data => setConfig(data ?? null))
-      .catch(err => setError(err instanceof Error ? err : new Error(String(err))))
+      .then((data) => setConfig(data ?? null))
+      .catch((err) => setError(err instanceof Error ? err : new Error(String(err))))
       .finally(() => setLoading(false))
   }, [])
 
@@ -29,10 +29,7 @@ export function useConfig(): UseConfigReturn {
     await saveConfig(next)
   }, [])
 
-  const validationErrors = useMemo(
-    () => (config ? validateConfig(config) : []),
-    [config],
-  )
+  const validationErrors = useMemo(() => (config ? validateConfig(config) : []), [config])
 
   return { config, loading, error, updateConfig, validationErrors }
 }

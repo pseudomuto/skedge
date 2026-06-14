@@ -70,16 +70,12 @@ export function phase2(cfg: Config, schedule: ScheduleClass[], rng: () => number
   for (const t of teachers) {
     if (!roomIdxMap.has(t.room)) roomIdxMap.set(t.room, roomIdxMap.size)
   }
-  const roomForTeacher: number[] = teachers.map(t => roomIdxMap.get(t.room)!)
+  const roomForTeacher: number[] = teachers.map((t) => roomIdxMap.get(t.room)!)
   const numRooms = roomIdxMap.size
 
   // Array-based state: inSlot[ti][si], inRoom[ri][si], remaining[ti]
-  const inSlot: boolean[][] = Array.from({ length: m }, () =>
-    new Array<boolean>(numSlots).fill(false),
-  )
-  const inRoom: boolean[][] = Array.from({ length: numRooms }, () =>
-    new Array<boolean>(numSlots).fill(false),
-  )
+  const inSlot: boolean[][] = Array.from({ length: m }, () => new Array<boolean>(numSlots).fill(false))
+  const inRoom: boolean[][] = Array.from({ length: numRooms }, () => new Array<boolean>(numSlots).fill(false))
   const remaining: number[] = new Array<number>(m).fill(MAX_TEACHER_BLOCKS_PER_WEEK)
 
   // Build eligibility map for initial count (before any assignments)
@@ -106,7 +102,15 @@ export function phase2(cfg: Config, schedule: ScheduleClass[], rng: () => number
           for (let ti = 0; ti < m; ti++) {
             if (isAuthorized(ti, cls.name, subject)) count++
           }
-          targets.push({ className: cls.name, cohortIdx, classIdx, dayIdx: di, blockIdx: bi, sk, initialCount: count })
+          targets.push({
+            className: cls.name,
+            cohortIdx,
+            classIdx,
+            dayIdx: di,
+            blockIdx: bi,
+            sk,
+            initialCount: count,
+          })
         }
       }
     }
@@ -119,13 +123,13 @@ export function phase2(cfg: Config, schedule: ScheduleClass[], rng: () => number
 
   // Precompute canTeach[fi][ti]: teacher ti can teach subject for target fi
   // This is authorization-only (slot conflicts handled dynamically)
-  const canTeach: boolean[][] = targets.map(tgt => {
+  const canTeach: boolean[][] = targets.map((tgt) => {
     const subject = schedule[tgt.classIdx].cohorts[tgt.cohortIdx].schedule[tgt.dayIdx].blocks[tgt.blockIdx].name
     return teachers.map((_, ti) => isAuthorized(ti, tgt.className, subject))
   })
 
   // Precompute slot index for each target
-  const slotForTarget: number[] = targets.map(tgt => slotIdxMap.get(tgt.sk)!)
+  const slotForTarget: number[] = targets.map((tgt) => slotIdxMap.get(tgt.sk)!)
 
   function fastEligible(fi: number, ti: number): boolean {
     const si = slotForTarget[fi]

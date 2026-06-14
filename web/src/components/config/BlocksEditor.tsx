@@ -41,7 +41,7 @@ export function BlocksEditor({ blocks, onChange }: Props) {
             <input
               type="text"
               value={block}
-              onChange={e => update(i, e.target.value)}
+              onChange={(e) => update(i, e.target.value)}
               className="flex-1 rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-400 focus:outline-none"
               placeholder="e.g. 8:00-9:00"
             />
@@ -59,10 +59,7 @@ export function BlocksEditor({ blocks, onChange }: Props) {
             >
               v
             </button>
-            <button
-              onClick={() => remove(i)}
-              className="rounded px-2 py-1 text-sm text-red-500 hover:bg-red-50"
-            >
+            <button onClick={() => remove(i)} className="rounded px-2 py-1 text-sm text-red-500 hover:bg-red-50">
               Remove
             </button>
           </div>

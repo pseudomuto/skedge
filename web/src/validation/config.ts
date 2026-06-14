@@ -8,8 +8,8 @@ export interface ValidationError {
 export function validateConfig(config: Config): ValidationError[] {
   const errors: ValidationError[] = []
 
-  const knownSubjects = new Set(config.subjects.map(s => s.name))
-  const knownClasses = new Set(config.classes.map(c => c.name))
+  const knownSubjects = new Set(config.subjects.map((s) => s.name))
+  const knownClasses = new Set(config.classes.map((c) => c.name))
 
   validateBlocks(config.blocks, errors)
   config.subjects.forEach((s, i) => {
@@ -45,7 +45,7 @@ function validateClass(
   if (!c.name) errors.push({ path: `${prefix}.name`, message: 'is required' })
 
   const seen = new Set<string>()
-  c.cohorts.forEach(cohort => {
+  c.cohorts.forEach((cohort) => {
     if (seen.has(cohort)) {
       errors.push({ path: `${prefix}.cohorts`, message: `contains duplicate value: ${cohort}` })
     } else {
@@ -83,7 +83,10 @@ function validateTeacher(
     }
     s.subjects.forEach((name, k) => {
       if (!knownSubjects.has(name)) {
-        errors.push({ path: `${subjectPrefix}.subjects[${k}]`, message: `unknown subject: ${name}` })
+        errors.push({
+          path: `${subjectPrefix}.subjects[${k}]`,
+          message: `unknown subject: ${name}`,
+        })
       }
     })
   })

@@ -14,8 +14,8 @@ const EMPTY_TEACHER: Teacher = { name: '', room: '', subjects: [] }
 
 function authorizedClasses(teacher: Teacher): string[] {
   return teacher.subjects
-    .filter(ts => ts.subjects.length > 0)
-    .map(ts => ts.class)
+    .filter((ts) => ts.subjects.length > 0)
+    .map((ts) => ts.class)
     .sort((a, b) => a.localeCompare(b))
 }
 
@@ -60,17 +60,24 @@ export function TeachersEditor({ teachers, classes, onChange }: Props) {
               </tr>
             </thead>
             <tbody>
-              {sorted.map(teacher => {
+              {sorted.map((teacher) => {
                 const origIdx = teachers.indexOf(teacher)
                 const cls = authorizedClasses(teacher)
                 return (
                   <tr
                     key={origIdx}
                     className="cursor-pointer transition-colors"
-                    style={{ backgroundColor: 'var(--surface)', borderTop: '1px solid var(--border)' }}
+                    style={{
+                      backgroundColor: 'var(--surface)',
+                      borderTop: '1px solid var(--border)',
+                    }}
                     onClick={() => setModal({ type: 'edit', origIdx })}
-                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'var(--bg)' }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'var(--surface)' }}
+                    onMouseEnter={(e) => {
+                      ;(e.currentTarget as HTMLElement).style.backgroundColor = 'var(--bg)'
+                    }}
+                    onMouseLeave={(e) => {
+                      ;(e.currentTarget as HTMLElement).style.backgroundColor = 'var(--surface)'
+                    }}
                   >
                     <td className="px-4 py-2.5 font-medium" style={{ color: 'var(--text)' }}>
                       {teacher.name || <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>(unnamed)</span>}
@@ -81,16 +88,23 @@ export function TeachersEditor({ teachers, classes, onChange }: Props) {
                     <td className="px-4 py-2.5">
                       <div className="flex flex-wrap gap-1.5">
                         {cls.length === 0 ? (
-                          <span className="text-xs" style={{ color: 'var(--text-muted)' }}>—</span>
-                        ) : cls.map(c => (
-                          <span
-                            key={c}
-                            className="rounded-full px-2.5 py-0.5 text-xs font-medium"
-                            style={{ backgroundColor: 'rgba(30,58,95,0.08)', color: 'var(--brand)' }}
-                          >
-                            {c}
+                          <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                            —
                           </span>
-                        ))}
+                        ) : (
+                          cls.map((c) => (
+                            <span
+                              key={c}
+                              className="rounded-full px-2.5 py-0.5 text-xs font-medium"
+                              style={{
+                                backgroundColor: 'rgba(30,58,95,0.08)',
+                                color: 'var(--brand)',
+                              }}
+                            >
+                              {c}
+                            </span>
+                          ))
+                        )}
                       </div>
                     </td>
                   </tr>

@@ -35,9 +35,7 @@ export function validateNoRoomConflict(schedule: ScheduleClass[]): Error | null 
           const key = `${d.day}:${i}:${b.room}`
           const other = seen.get(key)
           if (other !== undefined) {
-            return new Error(
-              `room ${b.room} double-booked on ${d.day} block ${i}: cohorts ${other} and ${cohort.name}`,
-            )
+            return new Error(`room ${b.room} double-booked on ${d.day} block ${i}: cohorts ${other} and ${cohort.name}`)
           }
           seen.set(key, cohort.name)
         }
@@ -60,9 +58,7 @@ export function validateTeacherBlockLimit(schedule: ScheduleClass[]): Error | nu
   }
   for (const [teacher, count] of counts) {
     if (count > MAX_TEACHER_BLOCKS_PER_WEEK) {
-      return new Error(
-        `teacher ${teacher} has ${count} blocks, exceeds weekly limit of ${MAX_TEACHER_BLOCKS_PER_WEEK}`,
-      )
+      return new Error(`teacher ${teacher} has ${count} blocks, exceeds weekly limit of ${MAX_TEACHER_BLOCKS_PER_WEEK}`)
     }
   }
   return null
@@ -75,9 +71,7 @@ export function validateNoDuplicateSubjectPerDay(schedule: ScheduleClass[]): Err
         const seen = new Set<string>()
         for (const b of d.blocks) {
           if (seen.has(b.name)) {
-            return new Error(
-              `cohort ${cohort.name} has subject ${b.name} more than once on ${d.day}`,
-            )
+            return new Error(`cohort ${cohort.name} has subject ${b.name} more than once on ${d.day}`)
           }
           seen.add(b.name)
         }
@@ -103,14 +97,10 @@ export function validateTeacherSubjects(cfg: Config, schedule: ScheduleClass[]):
           const k = `${b.teacher}:${cls.name}`
           const subjects = authorized.get(k)
           if (!subjects) {
-            return new Error(
-              `teacher ${b.teacher} has no subjects authorized for class ${cls.name}`,
-            )
+            return new Error(`teacher ${b.teacher} has no subjects authorized for class ${cls.name}`)
           }
           if (!subjects.has(b.name)) {
-            return new Error(
-              `teacher ${b.teacher} not authorized to teach ${b.name} in class ${cls.name}`,
-            )
+            return new Error(`teacher ${b.teacher} not authorized to teach ${b.name} in class ${cls.name}`)
           }
         }
       }
@@ -139,9 +129,7 @@ export function validateSubjectBlockCounts(cfg: Config, schedule: ScheduleClass[
       for (const [subject, want] of req) {
         const got = actual.get(subject) ?? 0
         if (got !== want) {
-          return new Error(
-            `cohort ${cohort.name} has ${got} blocks of ${subject}, expected ${want}`,
-          )
+          return new Error(`cohort ${cohort.name} has ${got} blocks of ${subject}, expected ${want}`)
         }
       }
       for (const [subject] of actual) {
@@ -160,9 +148,7 @@ export function validateNoGaps(cfg: Config, schedule: ScheduleClass[]): Error | 
     for (const cohort of cls.cohorts) {
       for (const d of cohort.schedule) {
         if (d.blocks.length !== expected) {
-          return new Error(
-            `cohort ${cohort.name} on ${d.day} has ${d.blocks.length} blocks, expected ${expected}`,
-          )
+          return new Error(`cohort ${cohort.name} on ${d.day} has ${d.blocks.length} blocks, expected ${expected}`)
         }
         for (let i = 0; i < d.blocks.length; i++) {
           const b = d.blocks[i]

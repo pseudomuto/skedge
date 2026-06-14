@@ -32,9 +32,9 @@ function testClass(name: string, ...cohorts: Cohort[]): ScheduleClass {
 }
 
 function weekFor(...blocks: Block[]): DailySchedule[] {
-  return ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].map(day => ({
+  return ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].map((day) => ({
     day,
-    blocks: blocks.map(b => ({ ...b })),
+    blocks: blocks.map((b) => ({ ...b })),
   }))
 }
 
@@ -42,11 +42,10 @@ function validSchedule(): ScheduleClass[] {
   return [
     testClass(
       'Grade8',
-      testCohort('8A', ...weekFor(
-        blk('Math', 'Smith', '101'),
-        blk('English', 'Smith', '101'),
-        blk('Science', 'Smith', '101'),
-      )),
+      testCohort(
+        '8A',
+        ...weekFor(blk('Math', 'Smith', '101'), blk('English', 'Smith', '101'), blk('Science', 'Smith', '101')),
+      ),
     ),
   ]
 }
@@ -157,10 +156,7 @@ describe('validateNoDuplicateSubjectPerDay', () => {
     const schedule = [
       testClass(
         'Grade8',
-        testCohort(
-          '8A',
-          testDay('Monday', blk('Math', 'Smith', '101'), blk('Math', 'Smith', '101')),
-        ),
+        testCohort('8A', testDay('Monday', blk('Math', 'Smith', '101'), blk('Math', 'Smith', '101'))),
       ),
     ]
     const err = validateNoDuplicateSubjectPerDay(schedule)
@@ -177,12 +173,7 @@ describe('validateTeacherSubjects', () => {
 
   it('catches teacher teaching unauthorized subject', () => {
     const cfg = baseValidatorConfig()
-    const schedule = [
-      testClass(
-        'Grade8',
-        testCohort('8A', testDay('Monday', blk('Art', 'Smith', '101'))),
-      ),
-    ]
+    const schedule = [testClass('Grade8', testCohort('8A', testDay('Monday', blk('Art', 'Smith', '101'))))]
     const err = validateTeacherSubjects(cfg, schedule)
     expect(err).not.toBeNull()
     expect(err!.message).toContain('Smith')
@@ -191,12 +182,7 @@ describe('validateTeacherSubjects', () => {
 
   it('catches teacher not in config for a class', () => {
     const cfg = baseValidatorConfig()
-    const schedule = [
-      testClass(
-        'Grade8',
-        testCohort('8A', testDay('Monday', blk('Math', 'Unknown', '101'))),
-      ),
-    ]
+    const schedule = [testClass('Grade8', testCohort('8A', testDay('Monday', blk('Math', 'Unknown', '101'))))]
     const err = validateTeacherSubjects(cfg, schedule)
     expect(err).not.toBeNull()
     expect(err!.message).toContain('Unknown')
@@ -215,11 +201,11 @@ describe('validateSubjectBlockCounts', () => {
     const schedule = [
       testClass(
         'Grade8',
-        testCohort('8A', ...weekFor(
-          blk('Math', 'Smith', '101'),
-          blk('English', 'Smith', '101'),
-          blk('Science', 'Smith', '101'),
-        ), testDay('Extra', blk('Math', 'Smith', '101'))),
+        testCohort(
+          '8A',
+          ...weekFor(blk('Math', 'Smith', '101'), blk('English', 'Smith', '101'), blk('Science', 'Smith', '101')),
+          testDay('Extra', blk('Math', 'Smith', '101')),
+        ),
       ),
     ]
     const err = validateSubjectBlockCounts(cfg, schedule)
@@ -309,10 +295,7 @@ describe('validateNoGaps', () => {
     const schedule = [
       testClass(
         'Grade8',
-        testCohort(
-          '8A',
-          testDay('Monday', blk('Math', 'Smith', '101'), blk('English', 'Smith', '101')),
-        ),
+        testCohort('8A', testDay('Monday', blk('Math', 'Smith', '101'), blk('English', 'Smith', '101'))),
       ),
     ]
     const err = validateNoGaps(baseValidatorConfig(), schedule)
@@ -326,12 +309,7 @@ describe('validateNoGaps', () => {
         'Grade8',
         testCohort(
           '8A',
-          testDay(
-            'Monday',
-            blk('', 'Smith', '101'),
-            blk('English', 'Smith', '101'),
-            blk('Science', 'Smith', '101'),
-          ),
+          testDay('Monday', blk('', 'Smith', '101'), blk('English', 'Smith', '101'), blk('Science', 'Smith', '101')),
         ),
       ),
     ]
@@ -346,12 +324,7 @@ describe('validateNoGaps', () => {
         'Grade8',
         testCohort(
           '8A',
-          testDay(
-            'Monday',
-            blk('Math', '', '101'),
-            blk('English', 'Smith', '101'),
-            blk('Science', 'Smith', '101'),
-          ),
+          testDay('Monday', blk('Math', '', '101'), blk('English', 'Smith', '101'), blk('Science', 'Smith', '101')),
         ),
       ),
     ]
@@ -366,12 +339,7 @@ describe('validateNoGaps', () => {
         'Grade8',
         testCohort(
           '8A',
-          testDay(
-            'Monday',
-            blk('Math', 'Smith', ''),
-            blk('English', 'Smith', '101'),
-            blk('Science', 'Smith', '101'),
-          ),
+          testDay('Monday', blk('Math', 'Smith', ''), blk('English', 'Smith', '101'), blk('Science', 'Smith', '101')),
         ),
       ),
     ]

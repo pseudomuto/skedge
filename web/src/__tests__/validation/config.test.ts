@@ -51,15 +51,15 @@ describe('validateConfig', () => {
       it(name, () => {
         const cfg = { ...baseConfig(), blocks }
         const errors = validateConfig(cfg)
-        expect(errors.some(e => e.path === expectPath && e.message === expectMsg)).toBe(true)
+        expect(errors.some((e) => e.path === expectPath && e.message === expectMsg)).toBe(true)
       })
     })
 
     it('accumulates multiple errors', () => {
       const cfg = { ...baseConfig(), blocks: ['', '09:00', '09:00'] }
       const errors = validateConfig(cfg)
-      expect(errors.some(e => e.path === 'blocks[0]')).toBe(true)
-      expect(errors.some(e => e.path === 'blocks[2]')).toBe(true)
+      expect(errors.some((e) => e.path === 'blocks[0]')).toBe(true)
+      expect(errors.some((e) => e.path === 'blocks[2]')).toBe(true)
     })
   })
 
@@ -68,7 +68,7 @@ describe('validateConfig', () => {
       const cfg = baseConfig()
       cfg.subjects = [{ name: 'Math' }, { name: '' }]
       const errors = validateConfig(cfg)
-      expect(errors.some(e => e.path === 'subjects[1].name' && e.message === 'is required')).toBe(true)
+      expect(errors.some((e) => e.path === 'subjects[1].name' && e.message === 'is required')).toBe(true)
     })
   })
 
@@ -77,14 +77,14 @@ describe('validateConfig', () => {
       const cfg = baseConfig()
       cfg.classes[0].name = ''
       const errors = validateConfig(cfg)
-      expect(errors.some(e => e.path === 'classes[0].name' && e.message === 'is required')).toBe(true)
+      expect(errors.some((e) => e.path === 'classes[0].name' && e.message === 'is required')).toBe(true)
     })
 
     it('rejects duplicate cohorts', () => {
       const cfg = baseConfig()
       cfg.classes[0].cohorts = ['8A', '8A']
       const errors = validateConfig(cfg)
-      expect(errors.some(e => e.path === 'classes[0].cohorts')).toBe(true)
+      expect(errors.some((e) => e.path === 'classes[0].cohorts')).toBe(true)
     })
 
     describe('class subjects', () => {
@@ -114,7 +114,7 @@ describe('validateConfig', () => {
           const cfg = baseConfig()
           cfg.classes[0].subjects = [subject]
           const errors = validateConfig(cfg)
-          expect(errors.some(e => e.path === expectPath && e.message === expectMsg)).toBe(true)
+          expect(errors.some((e) => e.path === expectPath && e.message === expectMsg)).toBe(true)
         })
       })
     })
@@ -123,7 +123,7 @@ describe('validateConfig', () => {
       const cfg = baseConfig()
       cfg.classes.push({ name: '', cohorts: [], subjects: [] })
       const errors = validateConfig(cfg)
-      expect(errors.some(e => e.path === 'classes[1].name')).toBe(true)
+      expect(errors.some((e) => e.path === 'classes[1].name')).toBe(true)
     })
   })
 
@@ -148,7 +148,7 @@ describe('validateConfig', () => {
         const cfg = baseConfig()
         cfg.teachers = [teacher]
         const errors = validateConfig(cfg)
-        expect(errors.some(e => e.path === expectPath && e.message === expectMsg)).toBe(true)
+        expect(errors.some((e) => e.path === expectPath && e.message === expectMsg)).toBe(true)
       })
     })
 
@@ -158,9 +158,7 @@ describe('validateConfig', () => {
         cfg.teachers[0].subjects = [{ class: 'Unknown', subjects: ['Math'] }]
         const errors = validateConfig(cfg)
         expect(
-          errors.some(
-            e => e.path === 'teachers[0].subjects[0].class' && e.message === 'unknown class: Unknown',
-          ),
+          errors.some((e) => e.path === 'teachers[0].subjects[0].class' && e.message === 'unknown class: Unknown'),
         ).toBe(true)
       })
 
@@ -169,11 +167,7 @@ describe('validateConfig', () => {
         cfg.teachers[0].subjects = [{ class: 'Grade8', subjects: ['Art'] }]
         const errors = validateConfig(cfg)
         expect(
-          errors.some(
-            e =>
-              e.path === 'teachers[0].subjects[0].subjects[0]' &&
-              e.message === 'unknown subject: Art',
-          ),
+          errors.some((e) => e.path === 'teachers[0].subjects[0].subjects[0]' && e.message === 'unknown subject: Art'),
         ).toBe(true)
       })
 
@@ -184,7 +178,7 @@ describe('validateConfig', () => {
           { class: 'Nonexistent', subjects: [] },
         ]
         const errors = validateConfig(cfg)
-        expect(errors.some(e => e.path === 'teachers[0].subjects[1].class')).toBe(true)
+        expect(errors.some((e) => e.path === 'teachers[0].subjects[1].class')).toBe(true)
       })
     })
 
@@ -192,7 +186,7 @@ describe('validateConfig', () => {
       const cfg = baseConfig()
       cfg.teachers.push({ name: 'Jones', room: '', subjects: [] })
       const errors = validateConfig(cfg)
-      expect(errors.some(e => e.path === 'teachers[1].room')).toBe(true)
+      expect(errors.some((e) => e.path === 'teachers[1].room')).toBe(true)
     })
   })
 

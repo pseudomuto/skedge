@@ -22,18 +22,18 @@ function ClassPanel({ cls, subjects, onUpdate, onRemove }: ClassPanelProps) {
   const commitCohorts = (raw: string) => {
     const cohorts = raw
       .split(',')
-      .map(s => s.trim())
-      .filter(s => s.length > 0)
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0)
     onUpdate({ ...cls, cohorts })
   }
 
   const updateSubjectBlocks = (subjectName: string, blocks: number) => {
-    const existing = cls.subjects.find(s => s.name === subjectName)
+    const existing = cls.subjects.find((s) => s.name === subjectName)
     let next: ClassSubject[]
     if (blocks <= 0) {
-      next = cls.subjects.filter(s => s.name !== subjectName)
+      next = cls.subjects.filter((s) => s.name !== subjectName)
     } else if (existing) {
-      next = cls.subjects.map(s => (s.name === subjectName ? { ...s, blocks } : s))
+      next = cls.subjects.map((s) => (s.name === subjectName ? { ...s, blocks } : s))
     } else {
       next = [...cls.subjects, { name: subjectName, blocks }]
     }
@@ -41,7 +41,7 @@ function ClassPanel({ cls, subjects, onUpdate, onRemove }: ClassPanelProps) {
   }
 
   const getBlocks = (subjectName: string): number => {
-    return cls.subjects.find(s => s.name === subjectName)?.blocks ?? 0
+    return cls.subjects.find((s) => s.name === subjectName)?.blocks ?? 0
   }
 
   const sortedSubjects = [...subjects].sort((a, b) => a.name.localeCompare(b.name))
@@ -52,14 +52,11 @@ function ClassPanel({ cls, subjects, onUpdate, onRemove }: ClassPanelProps) {
         <input
           type="text"
           value={cls.name}
-          onChange={e => updateName(e.target.value)}
+          onChange={(e) => updateName(e.target.value)}
           placeholder="Class name"
           className="flex-1 rounded border border-gray-300 px-2 py-1 text-sm font-medium focus:border-blue-400 focus:outline-none"
         />
-        <button
-          onClick={onRemove}
-          className="rounded px-2 py-1 text-sm text-red-500 hover:bg-red-50"
-        >
+        <button onClick={onRemove} className="rounded px-2 py-1 text-sm text-red-500 hover:bg-red-50">
           Remove
         </button>
       </div>
@@ -69,8 +66,8 @@ function ClassPanel({ cls, subjects, onUpdate, onRemove }: ClassPanelProps) {
         <input
           type="text"
           value={cohortInput}
-          onChange={e => setCohortInput(e.target.value)}
-          onBlur={e => commitCohorts(e.target.value)}
+          onChange={(e) => setCohortInput(e.target.value)}
+          onBlur={(e) => commitCohorts(e.target.value)}
           placeholder="e.g. A, B, C"
           className="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-400 focus:outline-none"
         />
@@ -80,14 +77,14 @@ function ClassPanel({ cls, subjects, onUpdate, onRemove }: ClassPanelProps) {
         <div>
           <p className="mb-2 text-xs font-medium text-gray-600">Subjects (blocks per week, 0 = excluded)</p>
           <div className="space-y-1">
-            {sortedSubjects.map(subject => (
+            {sortedSubjects.map((subject) => (
               <div key={subject.name} className="flex items-center gap-2">
                 <span className="w-32 text-sm text-gray-700">{subject.name}</span>
                 <input
                   type="number"
                   min={0}
                   value={getBlocks(subject.name)}
-                  onChange={e => updateSubjectBlocks(subject.name, parseInt(e.target.value, 10) || 0)}
+                  onChange={(e) => updateSubjectBlocks(subject.name, parseInt(e.target.value, 10) || 0)}
                   className="w-20 rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-400 focus:outline-none"
                 />
               </div>
@@ -123,14 +120,14 @@ export function ClassesEditor({ classes, subjects, onChange }: Props) {
     <div>
       <h2 className="mb-3 text-lg font-semibold text-gray-800">Classes</h2>
       <div className="space-y-3">
-        {sorted.map(cls => {
+        {sorted.map((cls) => {
           const origIdx = classes.indexOf(cls)
           return (
             <ClassPanel
               key={origIdx}
               cls={cls}
               subjects={subjects}
-              onUpdate={updated => updateAt(origIdx, updated)}
+              onUpdate={(updated) => updateAt(origIdx, updated)}
               onRemove={() => remove(origIdx)}
             />
           )

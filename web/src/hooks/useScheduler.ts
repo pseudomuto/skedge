@@ -34,10 +34,9 @@ export function useScheduler(): UseSchedulerReturn {
   const generate = useCallback((config: Config, maxRetries = 100) => {
     workerRef.current?.terminate()
 
-    const worker = new Worker(
-      new URL('../worker/scheduler.worker.ts', import.meta.url),
-      { type: 'module' },
-    )
+    const worker = new Worker(new URL('../worker/scheduler.worker.ts', import.meta.url), {
+      type: 'module',
+    })
     workerRef.current = worker
 
     setStatus('running')

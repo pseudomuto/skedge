@@ -1,3 +1,6 @@
+[tools]
+node = "26"
+
 [tasks.dev]
 description = "Start the development server"
 run = "npm run dev"

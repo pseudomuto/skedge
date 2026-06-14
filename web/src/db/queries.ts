@@ -16,11 +16,7 @@ export async function listSchedules(): Promise<StoredSchedule[]> {
   return db.schedules.orderBy('generatedAt').reverse().toArray()
 }
 
-export async function saveSchedule(
-  schedule: ScheduleClass[],
-  config: Config,
-  label?: string,
-): Promise<number> {
+export async function saveSchedule(schedule: ScheduleClass[], config: Config, label?: string): Promise<number> {
   const generatedAt = Date.now()
   const resolvedLabel = label ?? new Date(generatedAt).toLocaleDateString()
   const id = await db.schedules.add({

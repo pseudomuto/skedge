@@ -14,11 +14,11 @@ export function SubjectsEditor({ subjects, onChange }: Props) {
   })
 
   const update = (subject: Subject, name: string) => {
-    onChange(subjects.map(s => (s === subject ? { ...s, name } : s)))
+    onChange(subjects.map((s) => (s === subject ? { ...s, name } : s)))
   }
 
   const remove = (subject: Subject) => {
-    onChange(subjects.filter(s => s !== subject))
+    onChange(subjects.filter((s) => s !== subject))
   }
 
   const add = () => {
@@ -29,14 +29,14 @@ export function SubjectsEditor({ subjects, onChange }: Props) {
     <div>
       <h2 className="mb-3 text-lg font-semibold text-gray-800">Subjects</h2>
       <div className="space-y-2">
-        {sorted.map(subject => {
+        {sorted.map((subject) => {
           const origIdx = subjects.indexOf(subject)
           return (
             <div key={origIdx} className="flex items-center gap-2">
               <input
                 type="text"
                 value={subject.name}
-                onChange={e => update(subject, e.target.value)}
+                onChange={(e) => update(subject, e.target.value)}
                 className="flex-1 rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-400 focus:outline-none"
                 placeholder="Subject name"
               />

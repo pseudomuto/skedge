@@ -42,7 +42,7 @@ export function AppShell() {
               skedge
             </span>
             <nav className="flex gap-1">
-              {(['config', 'teachers', 'schedule'] as Tab[]).map(tab => (
+              {(['config', 'teachers', 'schedule'] as Tab[]).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
@@ -52,12 +52,12 @@ export function AppShell() {
                       ? { backgroundColor: 'rgba(255,255,255,0.15)', color: '#ffffff' }
                       : { color: 'rgba(255,255,255,0.55)' }
                   }
-                  onMouseEnter={e => {
+                  onMouseEnter={(e) => {
                     if (activeTab !== tab) {
                       ;(e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.85)'
                     }
                   }}
-                  onMouseLeave={e => {
+                  onMouseLeave={(e) => {
                     if (activeTab !== tab) {
                       ;(e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.55)'
                     }
@@ -73,30 +73,32 @@ export function AppShell() {
 
       <main className="mx-auto max-w-4xl px-6 py-8">
         {error && (
-          <div className="mb-6 rounded-lg border px-4 py-3 text-sm" style={{ borderColor: '#fca5a5', backgroundColor: '#fef2f2', color: '#b91c1c' }}>
+          <div
+            className="mb-6 rounded-lg border px-4 py-3 text-sm"
+            style={{ borderColor: '#fca5a5', backgroundColor: '#fef2f2', color: '#b91c1c' }}
+          >
             Failed to load config: {error.message}
           </div>
         )}
 
         {loading && (
-          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Loading...</p>
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+            Loading...
+          </p>
         )}
 
         {!loading && activeTab === 'config' && (
           <div className="space-y-8">
             <ConfigValidationAlert errors={validationErrors} />
-            <BlocksEditor
-              blocks={current.blocks}
-              onChange={blocks => handleChange({ ...current, blocks })}
-            />
+            <BlocksEditor blocks={current.blocks} onChange={(blocks) => handleChange({ ...current, blocks })} />
             <SubjectsEditor
               subjects={current.subjects}
-              onChange={subjects => handleChange({ ...current, subjects })}
+              onChange={(subjects) => handleChange({ ...current, subjects })}
             />
             <ClassesEditor
               classes={current.classes}
               subjects={current.subjects}
-              onChange={classes => handleChange({ ...current, classes })}
+              onChange={(classes) => handleChange({ ...current, classes })}
             />
           </div>
         )}
@@ -105,7 +107,7 @@ export function AppShell() {
           <TeachersEditor
             teachers={current.teachers}
             classes={current.classes}
-            onChange={teachers => handleChange({ ...current, teachers })}
+            onChange={(teachers) => handleChange({ ...current, teachers })}
           />
         )}
 
