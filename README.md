@@ -1,73 +1,41 @@
-# React + TypeScript + Vite
+# skedge
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A browser-based schedule generator for schools. Give it your classes, teachers, and time blocks - it figures out a valid
+weekly schedule so no teacher is double-booked and every subject gets the right number of sessions.
 
-Currently, two official plugins are available:
+## What it does
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Schools often split classes into smaller cohorts that rotate through different subjects across the week. Coordinating
+which teacher covers which cohort in which block - without conflicts - is tedious to do by hand. skedge automates that.
+You describe your setup once, hit Generate, and get a full Mon-Fri schedule.
 
-## React Compiler
+Everything runs in your browser. No account, no server, no data leaves your device.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Concepts
 
-## Expanding the ESLint configuration
+- **Block** - a named time slot in the school day (e.g. "Period 1", "Morning Block")
+- **Subject** - a course or activity (e.g. "Math", "Art")
+- **Class** - a group of students divided into **cohorts** that rotate through subjects independently
+- **Teacher** - a staff member with a room assignment and a list of subjects they can teach, per class
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Using skedge
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+Work through the three tabs in order:
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+**1. Config**
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Set up your blocks, subjects, and classes. For each class, add its cohorts and specify which subjects they need and how
+many blocks per week each subject requires.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+**2. Teachers**
 
-```js
-// eslint.config.js
-import reactDom from 'eslint-plugin-react-dom'
-import reactX from 'eslint-plugin-react-x'
+Add each teacher, assign them a room, and specify which subjects they can teach for each class.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+**3. Schedule**
+
+Click Generate. skedge will find a valid schedule or tell you if no solution is possible with the current configuration.
+Generated schedules are saved locally and persist between sessions.
+
+## License
+
+MIT - see [LICENSE](LICENSE).

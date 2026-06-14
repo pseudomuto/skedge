@@ -9,7 +9,7 @@ lerna-debug.log*
 
 .envrc
 .claude/
-.CLAUDE.local.md
+CLAUDE.local.md
 node_modules
 dist
 dist-ssr
