@@ -10,7 +10,7 @@ import { ConfigValidationAlert } from '../config/ConfigValidationAlert'
 import { GenerateButton } from '../schedule/GenerateButton'
 import { ScheduleGrid } from '../schedule/ScheduleGrid'
 
-type Tab = 'config' | 'schedule'
+type Tab = 'config' | 'teachers' | 'schedule'
 
 const DEFAULT_CONFIG: Config = {
   blocks: [],
@@ -42,7 +42,7 @@ export function AppShell() {
               skedge
             </span>
             <nav className="flex gap-1">
-              {(['config', 'schedule'] as Tab[]).map(tab => (
+              {(['config', 'teachers', 'schedule'] as Tab[]).map(tab => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
@@ -98,12 +98,15 @@ export function AppShell() {
               subjects={current.subjects}
               onChange={classes => handleChange({ ...current, classes })}
             />
-            <TeachersEditor
-              teachers={current.teachers}
-              classes={current.classes}
-              onChange={teachers => handleChange({ ...current, teachers })}
-            />
           </div>
+        )}
+
+        {!loading && activeTab === 'teachers' && (
+          <TeachersEditor
+            teachers={current.teachers}
+            classes={current.classes}
+            onChange={teachers => handleChange({ ...current, teachers })}
+          />
         )}
 
         {!loading && activeTab === 'schedule' && (

@@ -1,4 +1,6 @@
-import type { Teacher, Class, TeacherSubject } from '../../types/config'
+import { useState } from 'react'
+import type { Teacher, Class } from '../../types/config'
+import { TeacherModal } from './TeacherModal'
 
 interface Props {
   teachers: Teacher[]
@@ -6,104 +8,20 @@ interface Props {
   onChange: (teachers: Teacher[]) => void
 }
 
-interface TeacherPanelProps {
-  teacher: Teacher
-  classes: Class[]
-  onUpdate: (updated: Teacher) => void
-  onRemove: () => void
-}
+type ModalState = { type: 'edit'; origIdx: number } | { type: 'new' } | null
 
-function TeacherPanel({ teacher, classes, onUpdate, onRemove }: TeacherPanelProps) {
-  const updateName = (name: string) => onUpdate({ ...teacher, name })
-  const updateRoom = (room: string) => onUpdate({ ...teacher, room })
+const EMPTY_TEACHER: Teacher = { name: '', room: '', subjects: [] }
 
-  const isAuthorized = (className: string, subjectName: string): boolean => {
-    const entry = teacher.subjects.find(s => s.class === className)
-    return entry?.subjects.includes(subjectName) ?? false
-  }
-
-  const toggleSubject = (className: string, subjectName: string) => {
-    const existing = teacher.subjects.find(s => s.class === className)
-    let nextSubjects: TeacherSubject[]
-
-    if (existing) {
-      const alreadyHas = existing.subjects.includes(subjectName)
-      const updatedSubjectList = alreadyHas
-        ? existing.subjects.filter(s => s !== subjectName)
-        : [...existing.subjects, subjectName]
-
-      if (updatedSubjectList.length === 0) {
-        nextSubjects = teacher.subjects.filter(s => s.class !== className)
-      } else {
-        nextSubjects = teacher.subjects.map(s =>
-          s.class === className ? { ...s, subjects: updatedSubjectList } : s,
-        )
-      }
-    } else {
-      nextSubjects = [...teacher.subjects, { class: className, subjects: [subjectName] }]
-    }
-
-    onUpdate({ ...teacher, subjects: nextSubjects })
-  }
-
-  const sortedClasses = [...classes].sort((a, b) => a.name.localeCompare(b.name))
-
-  return (
-    <div className="rounded border border-gray-200 bg-white p-4">
-      <div className="mb-3 flex items-center gap-3">
-        <input
-          type="text"
-          value={teacher.name}
-          onChange={e => updateName(e.target.value)}
-          placeholder="Teacher name"
-          className="flex-1 rounded border border-gray-300 px-2 py-1 text-sm font-medium focus:border-blue-400 focus:outline-none"
-        />
-        <input
-          type="text"
-          value={teacher.room}
-          onChange={e => updateRoom(e.target.value)}
-          placeholder="Room"
-          className="w-28 rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-400 focus:outline-none"
-        />
-        <button
-          onClick={onRemove}
-          className="rounded px-2 py-1 text-sm text-red-500 hover:bg-red-50"
-        >
-          Remove
-        </button>
-      </div>
-
-      {sortedClasses.length > 0 && (
-        <div className="space-y-3">
-          {sortedClasses.map(cls => {
-            const classSubjects = cls.subjects.map(s => s.name).sort((a, b) => a.localeCompare(b))
-            if (classSubjects.length === 0) return null
-            return (
-              <div key={cls.name}>
-                <p className="mb-1 text-xs font-medium text-gray-500">{cls.name || '(unnamed class)'}</p>
-                <div className="flex flex-wrap gap-3">
-                  {classSubjects.map(subjectName => (
-                    <label key={subjectName} className="flex items-center gap-1 text-sm text-gray-700">
-                      <input
-                        type="checkbox"
-                        checked={isAuthorized(cls.name, subjectName)}
-                        onChange={() => toggleSubject(cls.name, subjectName)}
-                        className="rounded"
-                      />
-                      {subjectName}
-                    </label>
-                  ))}
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      )}
-    </div>
-  )
+function authorizedClasses(teacher: Teacher): string[] {
+  return teacher.subjects
+    .filter(ts => ts.subjects.length > 0)
+    .map(ts => ts.class)
+    .sort((a, b) => a.localeCompare(b))
 }
 
 export function TeachersEditor({ teachers, classes, onChange }: Props) {
+  const [modal, setModal] = useState<ModalState>(null)
+
   const sorted = [...teachers].sort((a, b) => {
     if (!a.name && !b.name) return 0
     if (!a.name) return 1
@@ -111,41 +29,94 @@ export function TeachersEditor({ teachers, classes, onChange }: Props) {
     return a.name.localeCompare(b.name)
   })
 
-  const updateAt = (index: number, updated: Teacher) => {
-    onChange(teachers.map((t, i) => (i === index ? updated : t)))
+  const handleSave = (updated: Teacher) => {
+    if (modal?.type === 'new') {
+      onChange([...teachers, updated])
+    } else if (modal?.type === 'edit') {
+      onChange(teachers.map((t, i) => (i === modal.origIdx ? updated : t)))
+    }
+    setModal(null)
   }
 
-  const remove = (index: number) => {
-    onChange(teachers.filter((_, i) => i !== index))
+  const handleRemove = (origIdx: number) => {
+    onChange(teachers.filter((_, i) => i !== origIdx))
+    setModal(null)
   }
 
-  const add = () => {
-    onChange([...teachers, { name: '', room: '', subjects: [] }])
-  }
+  const modalTeacher = modal?.type === 'edit' ? teachers[modal.origIdx] : EMPTY_TEACHER
 
   return (
     <div>
       <h2 className="mb-3 text-lg font-semibold text-gray-800">Teachers</h2>
-      <div className="space-y-3">
-        {sorted.map(teacher => {
-          const origIdx = teachers.indexOf(teacher)
-          return (
-            <TeacherPanel
-              key={origIdx}
-              teacher={teacher}
-              classes={classes}
-              onUpdate={updated => updateAt(origIdx, updated)}
-              onRemove={() => remove(origIdx)}
-            />
-          )
-        })}
-      </div>
+
+      {sorted.length > 0 && (
+        <div className="mb-3 overflow-hidden rounded-xl" style={{ border: '1px solid var(--border)' }}>
+          <table className="w-full border-collapse text-sm">
+            <thead>
+              <tr style={{ backgroundColor: 'var(--brand)' }}>
+                <th className="px-4 py-2.5 text-left text-xs font-semibold text-white">Name</th>
+                <th className="px-4 py-2.5 text-left text-xs font-semibold text-white">Room</th>
+                <th className="px-4 py-2.5 text-left text-xs font-semibold text-white">Classes</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sorted.map(teacher => {
+                const origIdx = teachers.indexOf(teacher)
+                const cls = authorizedClasses(teacher)
+                return (
+                  <tr
+                    key={origIdx}
+                    className="cursor-pointer transition-colors"
+                    style={{ backgroundColor: 'var(--surface)', borderTop: '1px solid var(--border)' }}
+                    onClick={() => setModal({ type: 'edit', origIdx })}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'var(--bg)' }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'var(--surface)' }}
+                  >
+                    <td className="px-4 py-2.5 font-medium" style={{ color: 'var(--text)' }}>
+                      {teacher.name || <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>(unnamed)</span>}
+                    </td>
+                    <td className="px-4 py-2.5 text-xs" style={{ color: 'var(--text-muted)' }}>
+                      {teacher.room}
+                    </td>
+                    <td className="px-4 py-2.5">
+                      <div className="flex flex-wrap gap-1.5">
+                        {cls.length === 0 ? (
+                          <span className="text-xs" style={{ color: 'var(--text-muted)' }}>—</span>
+                        ) : cls.map(c => (
+                          <span
+                            key={c}
+                            className="rounded-full px-2.5 py-0.5 text-xs font-medium"
+                            style={{ backgroundColor: 'rgba(30,58,95,0.08)', color: 'var(--brand)' }}
+                          >
+                            {c}
+                          </span>
+                        ))}
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
       <button
-        onClick={add}
-        className="mt-3 rounded border border-blue-300 px-3 py-1 text-sm text-blue-600 hover:bg-blue-50"
+        onClick={() => setModal({ type: 'new' })}
+        className="rounded border border-blue-300 px-3 py-1 text-sm text-blue-600 hover:bg-blue-50"
       >
         + Add Teacher
       </button>
+
+      {modal && modalTeacher && (
+        <TeacherModal
+          teacher={modalTeacher}
+          classes={classes}
+          onSave={handleSave}
+          onRemove={modal.type === 'edit' ? () => handleRemove(modal.origIdx) : undefined}
+          onClose={() => setModal(null)}
+        />
+      )}
     </div>
   )
 }
