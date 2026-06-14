@@ -1,4 +1,5 @@
 import Dexie, { type Table } from 'dexie'
+
 import type { Config } from '../types/config'
 import type { ScheduleClass } from '../types/schedule'
 

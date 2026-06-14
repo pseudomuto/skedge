@@ -1,8 +1,9 @@
 import { useEffect } from 'react'
+
+import { saveSchedule } from '../../db/queries'
+import { useScheduler } from '../../hooks/useScheduler'
 import type { Config } from '../../types/config'
 import type { ScheduleClass } from '../../types/schedule'
-import { useScheduler } from '../../hooks/useScheduler'
-import { saveSchedule } from '../../db/queries'
 
 interface Props {
   config: Config | null

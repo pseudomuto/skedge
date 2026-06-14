@@ -1,12 +1,13 @@
 import { useState } from 'react'
+
+import { useConfig } from '../../hooks/useConfig'
 import type { Config } from '../../types/config'
 import type { ScheduleClass } from '../../types/schedule'
-import { useConfig } from '../../hooks/useConfig'
 import { BlocksEditor } from '../config/BlocksEditor'
-import { SubjectsEditor } from '../config/SubjectsEditor'
 import { ClassesEditor } from '../config/ClassesEditor'
-import { TeachersEditor } from '../config/TeachersEditor'
 import { ConfigValidationAlert } from '../config/ConfigValidationAlert'
+import { SubjectsEditor } from '../config/SubjectsEditor'
+import { TeachersEditor } from '../config/TeachersEditor'
 import { GenerateButton } from '../schedule/GenerateButton'
 import { ScheduleGrid } from '../schedule/ScheduleGrid'
 

@@ -1,8 +1,9 @@
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+
+import { getConfig, saveConfig } from '../db/queries'
 import type { Config } from '../types/config'
 import { validateConfig } from '../validation/config'
 import type { ValidationError } from '../validation/config'
-import { getConfig, saveConfig } from '../db/queries'
 
 interface UseConfigReturn {
   config: Config | null

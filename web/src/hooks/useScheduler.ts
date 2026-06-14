@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+
 import type { Config } from '../types/config'
 import type { ScheduleClass } from '../types/schedule'
 

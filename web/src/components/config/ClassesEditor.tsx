@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import type { Class, Subject, ClassSubject } from '../../types/config'
+
+import type { Class, ClassSubject, Subject } from '../../types/config'
 
 interface Props {
   classes: Class[]

@@ -1,8 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import type { Config } from '../../types/config'
-
 import { generate, validate } from '../../scheduler/index'
+import type { Config } from '../../types/config'
 
 const minimalConfig: Config = {
   blocks: ['09:00', '10:00', '11:00'],

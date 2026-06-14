@@ -1,8 +1,7 @@
 import type { Config, Teacher } from '../types/config'
 import type { ScheduleClass } from '../types/schedule'
-
-import { MAX_TEACHER_BLOCKS_PER_WEEK } from './validate'
 import { shuffle } from './utils'
+import { MAX_TEACHER_BLOCKS_PER_WEEK } from './validate'
 
 const NODE_BUDGET = 5_000
 

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+
 import type { ScheduleClass } from '../../types/schedule'
 import { CohortScheduleTable } from './CohortScheduleTable'
 

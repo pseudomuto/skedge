@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import type { Teacher, Class } from '../../types/config'
+
+import type { Class, Teacher } from '../../types/config'
 import { TeacherModal } from './TeacherModal'
 
 interface Props {

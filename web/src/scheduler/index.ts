@@ -1,6 +1,5 @@
 import type { Config } from '../types/config'
 import type { Block, Cohort, DailySchedule, ScheduleClass } from '../types/schedule'
-
 import { phase1 } from './phase1'
 import { phase2 } from './phase2'
 import { validate } from './validate'

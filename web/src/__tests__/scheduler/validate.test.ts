@@ -1,19 +1,18 @@
 import { describe, expect, it } from 'vitest'
 
-import type { Config } from '../../types/config'
-import type { Block, DailySchedule, Cohort, ScheduleClass } from '../../types/schedule'
-
 import {
+  MAX_TEACHER_BLOCKS_PER_WEEK,
   validate,
-  validateNoGaps,
   validateNoDuplicateSubjectPerDay,
+  validateNoGaps,
   validateNoRoomConflict,
   validateNoTeacherConflict,
   validateSubjectBlockCounts,
   validateTeacherBlockLimit,
   validateTeacherSubjects,
-  MAX_TEACHER_BLOCKS_PER_WEEK,
 } from '../../scheduler/validate'
+import type { Config } from '../../types/config'
+import type { Block, Cohort, DailySchedule, ScheduleClass } from '../../types/schedule'
 
 function blk(name: string, teacher: string, room: string): Block {
   return { name, teacher, room }

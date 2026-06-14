@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react'
-import type { Teacher, Class, TeacherSubject } from '../../types/config'
+import { useEffect, useState } from 'react'
+
+import type { Class, Teacher, TeacherSubject } from '../../types/config'
 
 interface Props {
   teacher: Teacher
