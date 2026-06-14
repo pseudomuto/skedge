@@ -1,0 +1,22 @@
+[tasks.dev]
+description = "Start the development server"
+run = "npm run dev"
+dir = "{{config_root}}"
+
+[tasks.build]
+description = "Build for production"
+run = "npm run build"
+dir = "{{config_root}}"
+
+[tasks.test]
+description = "Run unit tests"
+run = "npm run test -- --run"
+dir = "{{config_root}}"
+
+[tasks.deploy]
+description = "Build and sync to S3 (requires S3_BUCKET env var)"
+run = """
+npm run build
+aws s3 sync dist/ s3://$S3_BUCKET --delete
+"""
+dir = "{{config_root}}"

@@ -33,3 +33,7 @@ dev/certs/
 
 # Binary from task build
 ./proxy
+
+# Web app
+web/node_modules/
+web/dist/
