@@ -31,21 +31,37 @@ export function AppShell() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="border-b border-gray-200 bg-white">
-        <div className="mx-auto max-w-4xl px-4">
-          <div className="flex items-center gap-6 py-3">
-            <span className="font-semibold text-gray-800">skedge</span>
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg)' }}>
+      <header style={{ backgroundColor: 'var(--brand)' }} className="sticky top-0 z-10 shadow-sm">
+        <div className="mx-auto max-w-4xl px-6">
+          <div className="flex items-center gap-8 py-4">
+            <span
+              className="text-xl font-semibold tracking-tight text-white"
+              style={{ fontFamily: 'Fraunces, Georgia, serif', letterSpacing: '-0.01em' }}
+            >
+              skedge
+            </span>
             <nav className="flex gap-1">
               {(['config', 'schedule'] as Tab[]).map(tab => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`rounded px-3 py-1 text-sm capitalize ${
+                  className="rounded-md px-4 py-1.5 text-sm font-medium capitalize transition-all"
+                  style={
                     activeTab === tab
-                      ? 'bg-blue-100 text-blue-700 font-medium'
-                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
-                  }`}
+                      ? { backgroundColor: 'rgba(255,255,255,0.15)', color: '#ffffff' }
+                      : { color: 'rgba(255,255,255,0.55)' }
+                  }
+                  onMouseEnter={e => {
+                    if (activeTab !== tab) {
+                      ;(e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.85)'
+                    }
+                  }}
+                  onMouseLeave={e => {
+                    if (activeTab !== tab) {
+                      ;(e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.55)'
+                    }
+                  }}
                 >
                   {tab}
                 </button>
@@ -55,15 +71,15 @@ export function AppShell() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-4xl px-4 py-6">
+      <main className="mx-auto max-w-4xl px-6 py-8">
         {error && (
-          <div className="mb-4 rounded border border-red-300 bg-red-50 p-3 text-sm text-red-700">
+          <div className="mb-6 rounded-lg border px-4 py-3 text-sm" style={{ borderColor: '#fca5a5', backgroundColor: '#fef2f2', color: '#b91c1c' }}>
             Failed to load config: {error.message}
           </div>
         )}
 
         {loading && (
-          <p className="text-sm text-gray-500">Loading...</p>
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Loading...</p>
         )}
 
         {!loading && activeTab === 'config' && (

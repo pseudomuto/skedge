@@ -1,1 +1,18 @@
 @import "tailwindcss";
+
+:root {
+  --brand: #1e3a5f;
+  --brand-dark: #152d4a;
+  --accent: #c9831a;
+  --bg: #f5f2eb;
+  --surface: #ffffff;
+  --border: #ddd8ce;
+  --text: #1c1c2e;
+  --text-muted: #6b6560;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+}
