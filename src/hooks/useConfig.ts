@@ -13,22 +13,32 @@ interface UseConfigReturn {
   validationErrors: ValidationError[]
 }
 
-export function useConfig(): UseConfigReturn {
-  const [config, setConfig] = useState<Config | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<Error | null>(null)
+type TermState = { termId: number; config: Config | null; error: Error | null }
+
+export function useConfig(termId: number | null): UseConfigReturn {
+  const [termState, setTermState] = useState<TermState | null>(null)
 
   useEffect(() => {
-    getConfig()
-      .then((data) => setConfig(data ?? null))
-      .catch((err) => setError(err instanceof Error ? err : new Error(String(err))))
-      .finally(() => setLoading(false))
-  }, [])
+    if (termId === null) return
+    getConfig(termId)
+      .then((data) => setTermState({ termId, config: data ?? null, error: null }))
+      .catch((err) =>
+        setTermState({ termId, config: null, error: err instanceof Error ? err : new Error(String(err)) }),
+      )
+  }, [termId])
 
-  const updateConfig = useCallback(async (next: Config): Promise<void> => {
-    setConfig(next)
-    await saveConfig(next)
-  }, [])
+  const config = termState?.termId === termId ? termState.config : null
+  const loading = termId === null || termState?.termId !== termId
+  const error = termState?.termId === termId ? (termState.error ?? null) : null
+
+  const updateConfig = useCallback(
+    async (next: Config): Promise<void> => {
+      if (termId === null) return
+      setTermState((s) => (s?.termId === termId ? { ...s, config: next } : s))
+      await saveConfig(termId, next)
+    },
+    [termId],
+  )
 
   const validationErrors = useMemo(() => (config ? validateConfig(config) : []), [config])
 
