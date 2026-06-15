@@ -6,11 +6,12 @@ import type { Config } from '../../types/config'
 import type { ScheduleClass } from '../../types/schedule'
 
 interface Props {
+  termId: number
   config: Config | null
   onScheduleGenerated: (schedule: ScheduleClass[]) => void
 }
 
-export function GenerateButton({ config, onScheduleGenerated }: Props) {
+export function GenerateButton({ termId, config, onScheduleGenerated }: Props) {
   const scheduler = useScheduler()
   const { status, schedule, error, progress } = scheduler
 
@@ -18,10 +19,10 @@ export function GenerateButton({ config, onScheduleGenerated }: Props) {
 
   useEffect(() => {
     if (status === 'success' && schedule && config) {
-      saveSchedule(schedule, config)
+      saveSchedule(termId, schedule, config)
       onScheduleGenerated(schedule)
     }
-  }, [status, schedule, config, onScheduleGenerated])
+  }, [status, schedule, config, termId, onScheduleGenerated])
 
   const handleClick = () => {
     if (!config) return

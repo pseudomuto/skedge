@@ -19,3 +19,13 @@ dir = "{{config_root}}"
 description = "Run unit tests"
 run = "npm run test -- --run"
 dir = "{{config_root}}"
+
+[tasks.fmt]
+description = "Format files"
+run = "npm run format"
+dir = "{{config_root}}"
+
+[tasks.lint]
+description = "Lint files"
+run = "npm run lint"
+dir = "{{config_root}}"

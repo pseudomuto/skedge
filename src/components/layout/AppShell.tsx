@@ -1,6 +1,7 @@
 import { useState } from 'react'
 
 import { useConfig } from '../../hooks/useConfig'
+import { useTerms } from '../../hooks/useTerms'
 import type { Config } from '../../types/config'
 import type { ScheduleClass } from '../../types/schedule'
 import { BlocksEditor } from '../config/BlocksEditor'
@@ -10,6 +11,7 @@ import { SubjectsEditor } from '../config/SubjectsEditor'
 import { TeachersEditor } from '../config/TeachersEditor'
 import { GenerateButton } from '../schedule/GenerateButton'
 import { ScheduleGrid } from '../schedule/ScheduleGrid'
+import { TermSelector } from '../terms/TermSelector'
 
 type Tab = 'config' | 'teachers' | 'schedule'
 
@@ -22,9 +24,13 @@ const DEFAULT_CONFIG: Config = {
 
 export function AppShell() {
   const [activeTab, setActiveTab] = useState<Tab>('config')
-  const [schedule, setSchedule] = useState<ScheduleClass[] | null>(null)
-  const { config, loading, error, updateConfig, validationErrors } = useConfig()
+  const [scheduleResult, setScheduleResult] = useState<{ termId: number; data: ScheduleClass[] } | null>(null)
+  const { terms, activeTerm, loading: termsLoading, setActiveTerm, createTerm, renameTerm, deleteTerm } = useTerms()
+  const { config, loading: configLoading, error, updateConfig, validationErrors } = useConfig(activeTerm?.id ?? null)
 
+  const schedule = scheduleResult && scheduleResult.termId === activeTerm?.id ? scheduleResult.data : null
+
+  const loading = termsLoading || configLoading
   const current: Config = config ?? DEFAULT_CONFIG
 
   const handleChange = (next: Config) => {
@@ -68,6 +74,16 @@ export function AppShell() {
                 </button>
               ))}
             </nav>
+            <div className="ml-auto">
+              <TermSelector
+                terms={terms}
+                activeTerm={activeTerm}
+                onSelect={setActiveTerm}
+                onRename={renameTerm}
+                onDelete={deleteTerm}
+                onCreate={createTerm}
+              />
+            </div>
           </div>
         </div>
       </header>
@@ -112,9 +128,13 @@ export function AppShell() {
           />
         )}
 
-        {!loading && activeTab === 'schedule' && (
+        {!loading && activeTab === 'schedule' && activeTerm && (
           <div className="space-y-6">
-            <GenerateButton config={current} onScheduleGenerated={setSchedule} />
+            <GenerateButton
+                termId={activeTerm.id!}
+                config={current}
+                onScheduleGenerated={(data) => setScheduleResult({ termId: activeTerm.id!, data })}
+              />
             {schedule && <ScheduleGrid schedule={schedule} blocks={current.blocks} />}
           </div>
         )}
