@@ -48,7 +48,7 @@ export function ScheduleGrid({ schedule, blocks }: Props) {
               {cls.cohorts.length > 1 && (
                 <div className="mb-4 flex items-center gap-3">
                   <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--brand)' }}>
-                    {'Cohort ' + cohort.name}
+                    {cls.name + cohort.name}
                   </span>
                   <div className="h-px flex-1" style={{ backgroundColor: 'var(--border)' }} />
                 </div>
