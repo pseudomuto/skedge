@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 
 import { saveSchedule } from '../../db/queries'
 import { useScheduler } from '../../hooks/useScheduler'
@@ -17,12 +17,22 @@ export function GenerateButton({ termId, config, onScheduleGenerated }: Props) {
 
   const isDisabled = config === null || config.classes.length === 0
 
+  const onScheduleGeneratedRef = useRef(onScheduleGenerated)
+  const configRef = useRef(config)
+  const handledScheduleRef = useRef<ScheduleClass[] | null>(null)
+
+  useLayoutEffect(() => {
+    onScheduleGeneratedRef.current = onScheduleGenerated
+    configRef.current = config
+  })
+
   useEffect(() => {
-    if (status === 'success' && schedule && config) {
-      saveSchedule(termId, schedule, config)
-      onScheduleGenerated(schedule)
+    if (status === 'success' && schedule && configRef.current && schedule !== handledScheduleRef.current) {
+      handledScheduleRef.current = schedule
+      saveSchedule(termId, schedule, configRef.current)
+      onScheduleGeneratedRef.current(schedule)
     }
-  }, [status, schedule, config, termId, onScheduleGenerated])
+  }, [status, schedule, termId])
 
   const handleClick = () => {
     if (!config) return

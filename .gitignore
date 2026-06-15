@@ -10,6 +10,7 @@ lerna-debug.log*
 .envrc
 .claude/
 CLAUDE.local.md
+coverage/
 node_modules
 dist
 dist-ssr

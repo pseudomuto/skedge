@@ -4,10 +4,12 @@ import {
   copyTerm as copyTermQuery,
   createTerm as createTermQuery,
   deleteTerm as deleteTermQuery,
+  importTerm as importTermQuery,
   listTerms,
   renameTerm as renameTermQuery,
 } from '../db/queries'
 import type { StoredTerm } from '../db/schema'
+import type { TermExport } from '../types/term'
 
 const ACTIVE_TERM_KEY = 'skedge_active_term'
 
@@ -19,6 +21,7 @@ interface UseTermsReturn {
   createTerm: (name: string, copyFromId?: number) => Promise<void>
   renameTerm: (id: number, name: string) => Promise<void>
   deleteTerm: (id: number) => Promise<void>
+  importTerm: (name: string, data: TermExport) => Promise<void>
 }
 
 export function useTerms(): UseTermsReturn {
@@ -93,5 +96,14 @@ export function useTerms(): UseTermsReturn {
     }
   }, [])
 
-  return { terms, activeTerm, loading, setActiveTerm, createTerm, renameTerm, deleteTerm }
+  const importTerm = useCallback(async (name: string, data: TermExport) => {
+    const newId = await importTermQuery(name, data)
+    const updated = await listTerms()
+    setTerms(updated)
+    const newTerm = updated.find((t) => t.id === newId) ?? null
+    setActiveTermState(newTerm)
+    if (newId != null) localStorage.setItem(ACTIVE_TERM_KEY, String(newId))
+  }, [])
+
+  return { terms, activeTerm, loading, setActiveTerm, createTerm, renameTerm, deleteTerm, importTerm }
 }
