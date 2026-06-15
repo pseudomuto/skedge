@@ -1,6 +1,7 @@
 import { useState } from 'react'
 
-import type { Class, ClassSubject, Subject } from '../../types/config'
+import type { Class, Subject } from '../../types/config'
+import { ClassModal } from './ClassModal'
 
 interface Props {
   classes: Class[]
@@ -8,96 +9,13 @@ interface Props {
   onChange: (classes: Class[]) => void
 }
 
-interface ClassPanelProps {
-  cls: Class
-  subjects: Subject[]
-  onUpdate: (updated: Class) => void
-  onRemove: () => void
-}
+type ModalState = { type: 'edit'; origIdx: number } | { type: 'new' } | null
 
-function ClassPanel({ cls, subjects, onUpdate, onRemove }: ClassPanelProps) {
-  const [cohortInput, setCohortInput] = useState(cls.cohorts.join(', '))
-
-  const updateName = (name: string) => onUpdate({ ...cls, name })
-
-  const commitCohorts = (raw: string) => {
-    const cohorts = raw
-      .split(',')
-      .map((s) => s.trim())
-      .filter((s) => s.length > 0)
-    onUpdate({ ...cls, cohorts })
-  }
-
-  const updateSubjectBlocks = (subjectName: string, blocks: number) => {
-    const existing = cls.subjects.find((s) => s.name === subjectName)
-    let next: ClassSubject[]
-    if (blocks <= 0) {
-      next = cls.subjects.filter((s) => s.name !== subjectName)
-    } else if (existing) {
-      next = cls.subjects.map((s) => (s.name === subjectName ? { ...s, blocks } : s))
-    } else {
-      next = [...cls.subjects, { name: subjectName, blocks }]
-    }
-    onUpdate({ ...cls, subjects: next })
-  }
-
-  const getBlocks = (subjectName: string): number => {
-    return cls.subjects.find((s) => s.name === subjectName)?.blocks ?? 0
-  }
-
-  const sortedSubjects = [...subjects].sort((a, b) => a.name.localeCompare(b.name))
-
-  return (
-    <div className="rounded border border-gray-200 bg-white p-4">
-      <div className="mb-3 flex items-center gap-3">
-        <input
-          type="text"
-          value={cls.name}
-          onChange={(e) => updateName(e.target.value)}
-          placeholder="Class name"
-          className="flex-1 rounded border border-gray-300 px-2 py-1 text-sm font-medium focus:border-blue-400 focus:outline-none"
-        />
-        <button onClick={onRemove} className="rounded px-2 py-1 text-sm text-red-500 hover:bg-red-50">
-          Remove
-        </button>
-      </div>
-
-      <div className="mb-3">
-        <label className="mb-1 block text-xs font-medium text-gray-600">Cohorts (comma-separated)</label>
-        <input
-          type="text"
-          value={cohortInput}
-          onChange={(e) => setCohortInput(e.target.value)}
-          onBlur={(e) => commitCohorts(e.target.value)}
-          placeholder="e.g. A, B, C"
-          className="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-400 focus:outline-none"
-        />
-      </div>
-
-      {sortedSubjects.length > 0 && (
-        <div>
-          <p className="mb-2 text-xs font-medium text-gray-600">Subjects (blocks per week, 0 = excluded)</p>
-          <div className="space-y-1">
-            {sortedSubjects.map((subject) => (
-              <div key={subject.name} className="flex items-center gap-2">
-                <span className="w-32 text-sm text-gray-700">{subject.name}</span>
-                <input
-                  type="number"
-                  min={0}
-                  value={getBlocks(subject.name)}
-                  onChange={(e) => updateSubjectBlocks(subject.name, parseInt(e.target.value, 10) || 0)}
-                  className="w-20 rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-400 focus:outline-none"
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
+const EMPTY_CLASS: Class = { name: '', cohorts: [], subjects: [] }
 
 export function ClassesEditor({ classes, subjects, onChange }: Props) {
+  const [modal, setModal] = useState<ModalState>(null)
+
   const sorted = [...classes].sort((a, b) => {
     if (!a.name && !b.name) return 0
     if (!a.name) return 1
@@ -105,41 +23,84 @@ export function ClassesEditor({ classes, subjects, onChange }: Props) {
     return a.name.localeCompare(b.name)
   })
 
-  const updateAt = (index: number, updated: Class) => {
-    onChange(classes.map((c, i) => (i === index ? updated : c)))
+  const handleSave = (updated: Class) => {
+    if (modal?.type === 'new') {
+      onChange([...classes, updated])
+    } else if (modal?.type === 'edit') {
+      onChange(classes.map((c, i) => (i === modal.origIdx ? updated : c)))
+    }
+    setModal(null)
   }
 
-  const remove = (index: number) => {
-    onChange(classes.filter((_, i) => i !== index))
+  const handleRemove = (origIdx: number) => {
+    onChange(classes.filter((_, i) => i !== origIdx))
+    setModal(null)
   }
 
-  const add = () => {
-    onChange([...classes, { name: '', cohorts: [], subjects: [] }])
-  }
+  const modalClass = modal?.type === 'edit' ? classes[modal.origIdx] : EMPTY_CLASS
 
   return (
     <div>
       <h2 className="mb-3 text-lg font-semibold text-gray-800">Classes</h2>
-      <div className="space-y-3">
-        {sorted.map((cls) => {
-          const origIdx = classes.indexOf(cls)
-          return (
-            <ClassPanel
-              key={origIdx}
-              cls={cls}
-              subjects={subjects}
-              onUpdate={(updated) => updateAt(origIdx, updated)}
-              onRemove={() => remove(origIdx)}
-            />
-          )
-        })}
-      </div>
+
+      {sorted.length > 0 && (
+        <div className="mb-3 overflow-hidden rounded-xl" style={{ border: '1px solid var(--border)' }}>
+          <table className="w-full border-collapse text-sm">
+            <thead>
+              <tr style={{ backgroundColor: 'var(--brand)' }}>
+                <th className="px-4 py-2.5 text-left text-xs font-semibold text-white">Name</th>
+                <th className="px-4 py-2.5 text-left text-xs font-semibold text-white">Cohorts</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sorted.map((cls) => {
+                const origIdx = classes.indexOf(cls)
+                return (
+                  <tr
+                    key={origIdx}
+                    className="cursor-pointer transition-colors"
+                    style={{
+                      backgroundColor: 'var(--surface)',
+                      borderTop: '1px solid var(--border)',
+                    }}
+                    onClick={() => setModal({ type: 'edit', origIdx })}
+                    onMouseEnter={(e) => {
+                      ;(e.currentTarget as HTMLElement).style.backgroundColor = 'var(--bg)'
+                    }}
+                    onMouseLeave={(e) => {
+                      ;(e.currentTarget as HTMLElement).style.backgroundColor = 'var(--surface)'
+                    }}
+                  >
+                    <td className="px-4 py-2.5 font-medium" style={{ color: 'var(--text)' }}>
+                      {cls.name || <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>(unnamed)</span>}
+                    </td>
+                    <td className="px-4 py-2.5 text-xs" style={{ color: 'var(--text-muted)' }}>
+                      {cls.cohorts.length > 0 ? cls.cohorts.join(', ') : '—'}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
       <button
-        onClick={add}
-        className="mt-3 rounded border border-blue-300 px-3 py-1 text-sm text-blue-600 hover:bg-blue-50"
+        onClick={() => setModal({ type: 'new' })}
+        className="rounded border border-blue-300 px-3 py-1 text-sm text-blue-600 hover:bg-blue-50"
       >
         + Add Class
       </button>
+
+      {modal && modalClass && (
+        <ClassModal
+          cls={modalClass}
+          subjects={subjects}
+          onSave={handleSave}
+          onRemove={modal.type === 'edit' ? () => handleRemove(modal.origIdx) : undefined}
+          onClose={() => setModal(null)}
+        />
+      )}
     </div>
   )
 }
