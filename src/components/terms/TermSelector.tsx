@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import type { StoredTerm } from '../../db/schema'
+import type { TermExport } from '../../types/term'
+import { parseTermExport } from '../../utils/termFile'
 
 interface Props {
   terms: StoredTerm[]
@@ -9,6 +11,8 @@ interface Props {
   onRename: (id: number, name: string) => Promise<void>
   onDelete: (id: number) => Promise<void>
   onCreate: (name: string, copyFromId?: number) => Promise<void>
+  onExport: (id: number) => Promise<void>
+  onImport: (name: string, data: TermExport) => Promise<void>
 }
 
 type PanelMode =
@@ -16,23 +20,29 @@ type PanelMode =
   | { type: 'renaming'; id: number; value: string }
   | { type: 'confirming-delete'; id: number }
   | { type: 'creating'; name: string; copyFromId: string }
+  | { type: 'importing'; name: string; parsed: TermExport }
 
-export function TermSelector({ terms, activeTerm, onSelect, onRename, onDelete, onCreate }: Props) {
+export function TermSelector({ terms, activeTerm, onSelect, onRename, onDelete, onCreate, onExport, onImport }: Props) {
   const [isOpen, setIsOpen] = useState(false)
   const [mode, setMode] = useState<PanelMode>({ type: 'idle' })
   const [busy, setBusy] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const renameInputRef = useRef<HTMLInputElement>(null)
   const createInputRef = useRef<HTMLInputElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const importInputRef = useRef<HTMLInputElement>(null)
+  const [importError, setImportError] = useState<string | null>(null)
 
   useEffect(() => {
     if (mode.type === 'renaming') renameInputRef.current?.focus()
     if (mode.type === 'creating') createInputRef.current?.focus()
+    if (mode.type === 'importing') importInputRef.current?.focus()
   }, [mode.type])
 
   const closeDropdown = useCallback(() => {
     setIsOpen(false)
     setMode({ type: 'idle' })
+    setImportError(null)
   }, [])
 
   useEffect(() => {
@@ -50,9 +60,12 @@ export function TermSelector({ terms, activeTerm, onSelect, onRename, onDelete, 
     const trimmed = value.trim()
     if (!trimmed || busy) return
     setBusy(true)
-    await onRename(id, trimmed)
-    setBusy(false)
-    setMode({ type: 'idle' })
+    try {
+      await onRename(id, trimmed)
+      setMode({ type: 'idle' })
+    } finally {
+      setBusy(false)
+    }
   }
 
   async function commitCreate(name: string, copyFromId: string) {
@@ -67,9 +80,47 @@ export function TermSelector({ terms, activeTerm, onSelect, onRename, onDelete, 
   async function commitDelete(id: number) {
     if (busy) return
     setBusy(true)
-    await onDelete(id)
-    setBusy(false)
-    setMode({ type: 'idle' })
+    try {
+      await onDelete(id)
+      setMode({ type: 'idle' })
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) {
+      setImportError(null)
+      return
+    }
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      try {
+        const parsed = parseTermExport(ev.target?.result as string)
+        setImportError(null)
+        setMode({ type: 'importing', name: parsed.name, parsed })
+      } catch (err) {
+        setImportError((err as Error).message)
+      }
+    }
+    reader.onerror = () => {
+      setImportError('Failed to read file')
+    }
+    reader.readAsText(file)
+    e.target.value = ''
+  }
+
+  async function commitImport(name: string, parsed: TermExport) {
+    const trimmed = name.trim()
+    if (!trimmed || busy) return
+    setBusy(true)
+    try {
+      await onImport(trimmed, parsed)
+      closeDropdown()
+    } finally {
+      setBusy(false)
+    }
   }
 
   return (
@@ -164,6 +215,17 @@ export function TermSelector({ terms, activeTerm, onSelect, onRename, onDelete, 
                 </button>
                 <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
+                    onClick={() => onExport(term.id!)}
+                    className="rounded p-0.5 hover:bg-black/10"
+                    title="Export"
+                    style={{ color: 'var(--text-muted)' }}
+                  >
+                    <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor">
+                      <path d="M2.75 14A1.75 1.75 0 0 1 1 12.25v-2.5a.75.75 0 0 1 1.5 0v2.5c0 .138.112.25.25.25h10.5a.25.25 0 0 0 .25-.25v-2.5a.75.75 0 0 1 1.5 0v2.5A1.75 1.75 0 0 1 13.25 14Z" />
+                      <path d="M7.25 7.689V2a.75.75 0 0 1 1.5 0v5.689l1.97-1.97a.749.749 0 1 1 1.06 1.061l-3.25 3.25a.749.749 0 0 1-1.06 0L4.22 6.78a.749.749 0 1 1 1.06-1.061z" />
+                    </svg>
+                  </button>
+                  <button
                     onClick={() => setMode({ type: 'renaming', id: term.id!, value: term.name })}
                     className="rounded p-0.5 hover:bg-black/10"
                     title="Rename"
@@ -239,14 +301,61 @@ export function TermSelector({ terms, activeTerm, onSelect, onRename, onDelete, 
                   </button>
                 </div>
               </div>
+            ) : mode.type === 'importing' ? (
+              <div className="space-y-2 px-3 py-2">
+                <input
+                  ref={importInputRef}
+                  placeholder="Term name"
+                  value={mode.name}
+                  onChange={(e) => setMode({ ...mode, name: e.target.value })}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') commitImport(mode.name, mode.parsed)
+                    if (e.key === 'Escape') closeDropdown()
+                  }}
+                  className="w-full rounded border px-2 py-1 text-sm outline-none"
+                  style={{ borderColor: 'var(--border)', color: 'var(--text)', backgroundColor: 'var(--bg)' }}
+                />
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => commitImport(mode.name, mode.parsed)}
+                    className="rounded px-2 py-1 text-xs font-medium text-white"
+                    style={{ backgroundColor: 'var(--accent)' }}
+                  >
+                    Import
+                  </button>
+                  <button onClick={closeDropdown} className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                    Cancel
+                  </button>
+                </div>
+              </div>
             ) : (
-              <button
-                onClick={() => setMode({ type: 'creating', name: '', copyFromId: '' })}
-                className="w-full px-3 py-1.5 text-left text-sm hover:bg-black/5"
-                style={{ color: 'var(--text-muted)' }}
-              >
-                + New term
-              </button>
+              <>
+                {importError && (
+                  <p className="px-3 pb-1 text-xs" style={{ color: '#b91c1c' }}>
+                    {importError}
+                  </p>
+                )}
+                <div className="flex">
+                  <button
+                    onClick={() => setMode({ type: 'creating', name: '', copyFromId: '' })}
+                    className="flex-1 px-3 py-1.5 text-left text-sm hover:bg-black/5"
+                    style={{ color: 'var(--text-muted)' }}
+                  >
+                    + New term
+                  </button>
+                  <button
+                    onClick={() => {
+                      setImportError(null)
+                      fileInputRef.current?.click()
+                    }}
+                    className="px-3 py-1.5 text-sm hover:bg-black/5"
+                    style={{ color: 'var(--text-muted)' }}
+                  >
+                    Import
+                  </button>
+                </div>
+                <input ref={fileInputRef} type="file" accept=".json" className="hidden" onChange={handleFileChange} />
+              </>
             )}
           </div>
         </div>

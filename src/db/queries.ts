@@ -1,5 +1,6 @@
 import type { Config } from '../types/config'
 import type { ScheduleClass } from '../types/schedule'
+import type { TermExport } from '../types/term'
 import { db } from './schema'
 import type { StoredSchedule, StoredTerm } from './schema'
 
@@ -50,7 +51,7 @@ export async function saveConfig(termId: number, data: Config): Promise<void> {
 // Schedule queries
 
 export async function listSchedules(termId: number): Promise<StoredSchedule[]> {
-  const all = await db.schedules.where('termId').equals(termId).toArray()
+  const all = (await db.schedules.toArray()).filter((s) => s.termId === termId)
   return all.sort((a, b) => b.generatedAt - a.generatedAt)
 }
 
@@ -68,4 +69,43 @@ export async function saveSchedule(
 
 export async function deleteSchedule(id: number): Promise<void> {
   await db.schedules.delete(id)
+}
+
+export async function importTerm(name: string, data: TermExport): Promise<number> {
+  return db.transaction('rw', [db.terms, db.configs, db.schedules], async () => {
+    const newTermId = (await db.terms.add({ name, createdAt: Date.now() })) as number
+    if (data.config !== null) {
+      await db.configs.put({ id: newTermId, termId: newTermId, data: data.config, updatedAt: Date.now() })
+    }
+    if (data.schedules.length > 0) {
+      await db.schedules.bulkAdd(
+        data.schedules.map(({ generatedAt, label, schedule, configSnapshot }) => ({
+          termId: newTermId,
+          generatedAt,
+          label,
+          schedule,
+          configSnapshot,
+        })),
+      )
+    }
+    return newTermId
+  })
+}
+
+export async function exportTerm(termId: number): Promise<TermExport> {
+  const term = await db.terms.get(termId)
+  const stored = await db.configs.get(termId)
+  const schedules = (await db.schedules.toArray()).filter((s) => s.termId === termId)
+  return {
+    version: 1,
+    name: term?.name ?? '',
+    exportedAt: Date.now(),
+    config: stored?.data ?? null,
+    schedules: schedules.map(({ generatedAt, label, schedule, configSnapshot }) => ({
+      generatedAt,
+      label,
+      schedule,
+      configSnapshot,
+    })),
+  }
 }

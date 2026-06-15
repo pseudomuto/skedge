@@ -1,9 +1,11 @@
 import { useState } from 'react'
 
+import { exportTerm } from '../../db/queries'
 import { useConfig } from '../../hooks/useConfig'
 import { useTerms } from '../../hooks/useTerms'
 import type { Config } from '../../types/config'
 import type { ScheduleClass } from '../../types/schedule'
+import { downloadTerm } from '../../utils/termFile'
 import { BlocksEditor } from '../config/BlocksEditor'
 import { ClassesEditor } from '../config/ClassesEditor'
 import { ConfigValidationAlert } from '../config/ConfigValidationAlert'
@@ -25,7 +27,16 @@ const DEFAULT_CONFIG: Config = {
 export function AppShell() {
   const [activeTab, setActiveTab] = useState<Tab>('config')
   const [scheduleResult, setScheduleResult] = useState<{ termId: number; data: ScheduleClass[] } | null>(null)
-  const { terms, activeTerm, loading: termsLoading, setActiveTerm, createTerm, renameTerm, deleteTerm } = useTerms()
+  const {
+    terms,
+    activeTerm,
+    loading: termsLoading,
+    setActiveTerm,
+    createTerm,
+    renameTerm,
+    deleteTerm,
+    importTerm,
+  } = useTerms()
   const { config, loading: configLoading, error, updateConfig, validationErrors } = useConfig(activeTerm?.id ?? null)
 
   const schedule = scheduleResult && scheduleResult.termId === activeTerm?.id ? scheduleResult.data : null
@@ -82,6 +93,15 @@ export function AppShell() {
                 onRename={renameTerm}
                 onDelete={deleteTerm}
                 onCreate={createTerm}
+                onExport={async (id) => {
+                  try {
+                    const data = await exportTerm(id)
+                    downloadTerm(data)
+                  } catch {
+                    // export failure is non-destructive; user can retry
+                  }
+                }}
+                onImport={importTerm}
               />
             </div>
           </div>
@@ -131,10 +151,10 @@ export function AppShell() {
         {!loading && activeTab === 'schedule' && activeTerm && (
           <div className="space-y-6">
             <GenerateButton
-                termId={activeTerm.id!}
-                config={current}
-                onScheduleGenerated={(data) => setScheduleResult({ termId: activeTerm.id!, data })}
-              />
+              termId={activeTerm.id!}
+              config={current}
+              onScheduleGenerated={(data) => setScheduleResult({ termId: activeTerm.id!, data })}
+            />
             {schedule && <ScheduleGrid schedule={schedule} blocks={current.blocks} />}
           </div>
         )}
