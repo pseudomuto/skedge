@@ -1,9 +1,11 @@
 # skedge
 
-[![CI](https://github.com/pseudomuto/skedge2/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/pseudomuto/skedge2/actions/workflows/ci.yml)
+[![CI](https://github.com/pseudomuto/skedge/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/pseudomuto/skedge/actions/workflows/ci.yml)
 
 A browser-based schedule generator for schools. Give it your classes, teachers, and time blocks - it figures out a valid
 weekly schedule so no teacher is double-booked and every subject gets the right number of sessions.
+
+Try it! <https://pseudomuto.com/skedge>.
 
 ## What it does
 

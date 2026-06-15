@@ -14,8 +14,9 @@ import { TeachersEditor } from '../config/TeachersEditor'
 import { GenerateButton } from '../schedule/GenerateButton'
 import { ScheduleGrid } from '../schedule/ScheduleGrid'
 import { TermSelector } from '../terms/TermSelector'
+import { DocsPage } from './DocsPage'
 
-type Tab = 'config' | 'teachers' | 'schedule'
+type Tab = 'config' | 'teachers' | 'schedule' | 'docs'
 
 const DEFAULT_CONFIG: Config = {
   blocks: [],
@@ -25,7 +26,7 @@ const DEFAULT_CONFIG: Config = {
 }
 
 export function AppShell() {
-  const [activeTab, setActiveTab] = useState<Tab>('config')
+  const [activeTab, setActiveTab] = useState<Tab>('docs')
   const [scheduleResult, setScheduleResult] = useState<{ termId: number; data: ScheduleClass[] } | null>(null)
   const {
     terms,
@@ -60,7 +61,7 @@ export function AppShell() {
               skedge
             </span>
             <nav className="flex gap-1">
-              {(['config', 'teachers', 'schedule'] as Tab[]).map((tab) => (
+              {(['docs', 'config', 'teachers', 'schedule'] as Tab[]).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
@@ -158,6 +159,8 @@ export function AppShell() {
             {schedule && <ScheduleGrid schedule={schedule} blocks={current.blocks} />}
           </div>
         )}
+
+        {activeTab === 'docs' && <DocsPage />}
       </main>
     </div>
   )
