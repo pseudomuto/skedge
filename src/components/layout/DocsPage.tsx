@@ -61,7 +61,10 @@ const steps = [
 export function DocsPage() {
   return (
     <div className="space-y-12">
-      <nav className="rounded-lg border p-4" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}>
+      <nav
+        className="rounded-lg border p-4"
+        style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface)' }}
+      >
         <p className="mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
           On this page
         </p>
@@ -111,15 +114,13 @@ export function DocsPage() {
           How it works
         </h2>
         <p className="mb-3 leading-relaxed" style={{ color: 'var(--text)' }}>
-          When you click Generate, skedge runs a constraint solver in a background thread. It works in two phases
-          per attempt, and retries the whole sequence up to 100 times with a fresh random ordering if it gets
-          stuck.
+          When you click Generate, skedge runs a constraint solver in a background thread. It works in two phases per
+          attempt, and retries the whole sequence up to 100 times with a fresh random ordering if it gets stuck.
         </p>
         <p className="mb-3 leading-relaxed" style={{ color: 'var(--text)' }}>
-          Phase 1 assigns subjects to each cohort's time slots using backtracking - if a partial assignment hits
-          a dead end, it backtracks and tries a different subject ordering. Phase 2 then assigns a teacher and
-          room to each slot, again using backtracking, this time prioritizing the slots with the fewest eligible
-          teachers first.
+          Phase 1 assigns subjects to each cohort's time slots using backtracking - if a partial assignment hits a dead
+          end, it backtracks and tries a different subject ordering. Phase 2 then assigns a teacher and room to each
+          slot, again using backtracking, this time prioritizing the slots with the fewest eligible teachers first.
         </p>
         <p className="mb-3 leading-relaxed" style={{ color: 'var(--text)' }}>
           The solver enforces these rules on every schedule it produces:

@@ -1,15 +1,12 @@
-import type { Cohort } from '../../types/schedule'
-import { DAYS } from '../../utils/schedule'
+import { DAYS, type TeacherSlot } from '../../utils/schedule'
 import { hexToRgba, subjectAccent } from '../../utils/scheduleColors'
 
 interface Props {
-  cohort: Cohort
+  slots: (TeacherSlot | null)[][]
   blocks: string[]
 }
 
-export function CohortScheduleTable({ cohort, blocks }: Props) {
-  const byDay = Object.fromEntries(cohort.schedule.map((ds) => [ds.day, ds.blocks]))
-
+export function TeacherScheduleTable({ slots, blocks }: Props) {
   return (
     <div className="overflow-x-auto rounded-xl shadow-sm" style={{ border: '1px solid var(--border)' }}>
       <table className="w-full border-collapse text-sm">
@@ -26,9 +23,9 @@ export function CohortScheduleTable({ cohort, blocks }: Props) {
           </tr>
         </thead>
         <tbody>
-          {blocks.map((label, idx) => (
+          {blocks.map((label, blockIdx) => (
             <tr
-              key={idx}
+              key={blockIdx}
               className="transition-colors"
               style={{ backgroundColor: 'var(--surface)', borderTop: '1px solid var(--border)' }}
               onMouseEnter={(e) => {
@@ -41,20 +38,21 @@ export function CohortScheduleTable({ cohort, blocks }: Props) {
               <td className="px-4 py-2.5 font-mono text-xs whitespace-nowrap" style={{ color: 'var(--text-muted)' }}>
                 {label}
               </td>
-              {DAYS.map((day) => {
-                const block = byDay[day]?.[idx]
-                if (!block?.name) {
-                  return <td key={day} className="px-4 py-2.5" />
+              {DAYS.map((_, dayIdx) => {
+                const slot = slots[blockIdx]?.[dayIdx]
+                if (!slot) {
+                  return <td key={dayIdx} className="px-4 py-2.5" />
                 }
-                const color = subjectAccent(block.name)
+                const color = subjectAccent(slot.subject)
+                const classLabel = slot.cohortName ? `${slot.className} - ${slot.cohortName}` : slot.className
                 return (
-                  <td key={day} className="px-3 py-2">
+                  <td key={dayIdx} className="px-3 py-2">
                     <div className="rounded-md px-3 py-2" style={{ backgroundColor: hexToRgba(color, 0.1) }}>
                       <div className="text-xs font-semibold leading-snug" style={{ color }}>
-                        {block.name}
+                        {slot.subject}
                       </div>
                       <div className="mt-0.5 text-[11px] leading-snug" style={{ color: 'var(--text-muted)' }}>
-                        {block.teacher} · {block.room}
+                        {classLabel}
                       </div>
                     </div>
                   </td>
