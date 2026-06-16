@@ -29,8 +29,7 @@ export function ClassModal({ cls, subjects, onSave, onRemove, onClose }: Props) 
       .map((s) => s.trim())
       .filter((s) => s.length > 0)
 
-  const getBlocks = (subjectName: string): number =>
-    classSubjects.find((s) => s.name === subjectName)?.blocks ?? 0
+  const getBlocks = (subjectName: string): number => classSubjects.find((s) => s.name === subjectName)?.blocks ?? 0
 
   const updateSubjectBlocks = (subjectName: string, blocks: number) => {
     const existing = classSubjects.find((s) => s.name === subjectName)
